@@ -1,0 +1,10 @@
+std_msgs/Header header
+std_msgs/String sensor_id
+int32 window_size
+float64 weight
+byte OK=0
+byte WARN=1
+byte ERROR=2
+byte msg
+float32[] data
+float32 angle

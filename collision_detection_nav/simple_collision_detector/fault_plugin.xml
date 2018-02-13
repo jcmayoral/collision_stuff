@@ -1,0 +1,7 @@
+<library path="lib/libsimple_collision_detector">
+  <class name="simple_collision_detector/SimpleCollisionDetector" type="simple_collision_detector::SimpleCollisionDetector" base_class_type="fault_core::FaultDetector">
+    <description>
+      A simple collision detector with no diagnosing functionalities diagnosing collisions as mislocalization problem.
+    </description>
+  </class>
+</library>

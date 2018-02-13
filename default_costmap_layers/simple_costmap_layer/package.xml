@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+  <name>simple_costmap_layer</name>
+  <version>1.0.0</version>
+  <description> Costmap Layers useful for collision recovery approaches </description>
+
+  <maintainer email="jocamaba1989@gmail.com">Jose Mayoral</maintainer>
+
+  <license>GPLv3</license>
+
+  <author email="jocamaba1989@gmail.com"> Jose Mayoral </author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>cmake_modules</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>costmap_2d</build_depend>
+  <build_depend>roscpp</build_depend>
+
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>costmap_2d</run_depend>
+  <run_depend>roscpp</run_depend>
+
+  <export>
+    <costmap_2d plugin="${prefix}/costmap_plugins.xml" />
+  </export>
+
+</package>
