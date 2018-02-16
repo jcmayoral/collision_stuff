@@ -12,6 +12,11 @@ using namespace message_filters;
 namespace simple_collision_detector
 {
 
+  void SimpleCollisionDetector::instantiateServices(ros::NodeHandle nh){
+
+
+  }
+
   SimpleCollisionDetector::SimpleCollisionDetector(): isCollisionDetected(false)
   {
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;

@@ -93,7 +93,7 @@ namespace move_base_fault_tolerant {
        boost::shared_ptr<fault_core::FaultDetector> fd_;
        void detectFault();
        void recoveryFault();
-       void createFaultDetector();
+       void createFaultDetector(ros::NodeHandle nh);
        bool loadFaultRecoveryBehaviors(ros::NodeHandle node);
        int sensors_number_;
        boost::thread* detection_thread_;

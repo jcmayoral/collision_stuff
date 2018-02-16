@@ -47,6 +47,9 @@ namespace fault_core {
    */
   class FaultDetector{
     public:
+
+      virtual void instantiateServices(ros::NodeHandle nh) = 0;
+
       /**
        * @brief  Initialization function for the RecoveryBehavior
        * @param tf A pointer to a transform listener

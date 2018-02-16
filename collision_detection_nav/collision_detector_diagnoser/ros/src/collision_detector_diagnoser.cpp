@@ -29,30 +29,29 @@ namespace collision_detector_diagnoser
 
   }
 
-
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5)
-  {
-    ros::NodeHandle private_n("~");
-    fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
-    fault_.cause_ = FaultTopology::UNKNOWN;
-    strength_srv_client_ = private_n.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
-    orientations_srv_client_ = private_n.serviceClient<footprint_checker::CollisionCheckerMsg>("/collision_checker");
-    speak_pub_ = private_n.advertise<std_msgs::String>("/say",1);
-    ros::Duration(2).sleep();
-
-    /*while (speak_pub_.getNumSubscribers() < 1){
-      ROS_INFO_ONCE("Waiting Subscriber for say server");
-    }*/
-
-    orientation_pub_ = private_n.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
-
-    private_n.param("sensor_fusion/sensor_number", sensor_number_, 1);
-    private_n.param("sensor_fusion/mode", mode_, 1);
-    private_n.param("sensor_fusion/filter", filter_, true);
+  void CollisionDetectorDiagnoser::instantiateServices(ros::NodeHandle nh){
+    nh.param("sensor_fusion/sensor_number", sensor_number_, 1);
+    nh.param("sensor_fusion/mode", mode_, 1);
+    nh.param("sensor_fusion/filter", filter_, true);
     ROS_INFO_STREAM("mode" << mode_);
     initialize(sensor_number_);
 
+    strength_srv_client_ = nh.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
+    orientations_srv_client_ = nh.serviceClient<footprint_checker::CollisionCheckerMsg>("/collision_checker");
+    speak_pub_ = nh.advertise<std_msgs::String>("/say",1);
+    ros::Duration(2).sleep();
+    orientation_pub_ = nh.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
+    /*while (speak_pub_.getNumSubscribers() < 1){
+      ROS_INFO_ONCE("Waiting Subscriber for say server");
+    }*/
     setDynamicReconfigureServer();
+  }
+
+
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5)
+  {
+    fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
+    fault_.cause_ = FaultTopology::UNKNOWN;
     ROS_INFO("Default Constructor CollisionDetectorDiagnoser");
   }
 

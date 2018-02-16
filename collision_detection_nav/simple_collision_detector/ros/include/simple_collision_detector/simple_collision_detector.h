@@ -30,6 +30,9 @@ namespace simple_collision_detector
        */
       ~SimpleCollisionDetector();
 
+
+      void instantiateServices(ros::NodeHandle nh);
+
       /**
        * @brief Initializes plugin
        * @param number of sensors

@@ -37,6 +37,9 @@ namespace collision_detector_diagnoser
        */
       ~CollisionDetectorDiagnoser();
 
+
+      void instantiateServices(ros::NodeHandle nh);
+
       /**
        * @brief Initializes plugin
        * @param number of sensors
