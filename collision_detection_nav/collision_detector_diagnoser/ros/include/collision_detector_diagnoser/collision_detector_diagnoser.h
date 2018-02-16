@@ -144,6 +144,10 @@ namespace collision_detector_diagnoser
       //Collision Orientations from sensors
       ros::Publisher orientation_pub_;
 
+
+      double age_penalty_;
+      double max_interval_;
+
   };
 
 }  // namespace collision_detector_diagnoser

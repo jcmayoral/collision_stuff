@@ -48,14 +48,14 @@ namespace collision_detector_diagnoser
   }
 
 
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5)
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5), age_penalty_(-1.0), max_interval_(0.0)
   {
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
     fault_.cause_ = FaultTopology::UNKNOWN;
     ROS_INFO("Default Constructor CollisionDetectorDiagnoser");
   }
 
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(sensor_number), filter_(false)
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(sensor_number), filter_(false), age_penalty_(-1.0), max_interval_(0.0)
   {
     //Used In teh Node
     ros::NodeHandle private_n("~");
@@ -91,6 +91,8 @@ namespace collision_detector_diagnoser
     filter_ = config.allow_filter;
     percentage_threshold_ = config.percentage_threshold;
     sensor_number_ = config.sensor_sources;
+    age_penalty_ = config.age_penalty;
+    max_interval_ = config.max_interval;
     initialize(sensor_number_);
   }
 
@@ -243,27 +245,44 @@ namespace collision_detector_diagnoser
       case 2:
         syncronizer_for_two_ = new message_filters::Synchronizer<MySyncPolicy2>(MySyncPolicy2(10), *filtered_subscribers_.at(0),
                                                                                                *filtered_subscribers_.at(1));
+        syncronizer_for_two_->setAgePenalty(age_penalty_);
+        //syncronizer_for_two_->setInterMessageLowerBound(lower_bound_);
+        syncronizer_for_two_->setMaxIntervalDuration(ros::Duration(max_interval_));
+
         main_connection = syncronizer_for_two_->registerCallback(boost::bind(&CollisionDetectorDiagnoser::twoSensorsCallBack,this,_1, _2));
         break;
       case 3:
-        syncronizer_for_three_ = new message_filters::Synchronizer<MySyncPolicy3>(MySyncPolicy3(10), *filtered_subscribers_.at(0),
+        syncronizer_for_three_ = new message_filters::Synchronizer<MySyncPolicy3>(MySyncPolicy3(20), *filtered_subscribers_.at(0),
                                                                                                      *filtered_subscribers_.at(1),
                                                                                                      *filtered_subscribers_.at(2));
+        syncronizer_for_three_->setAgePenalty(age_penalty_);
+        //syncronizer_for_three_->setInterMessageLowerBound(lower_bound_);
+        syncronizer_for_three_->setMaxIntervalDuration(ros::Duration(max_interval_));
+
+
         main_connection = syncronizer_for_three_->registerCallback(boost::bind(&CollisionDetectorDiagnoser::threeSensorsCallBack,this,_1, _2,_3));
         break;
       case 4:
-        syncronizer_for_four_ = new message_filters::Synchronizer<MySyncPolicy4>(MySyncPolicy4(10), *filtered_subscribers_.at(0),
+        syncronizer_for_four_ = new message_filters::Synchronizer<MySyncPolicy4>(MySyncPolicy4(20), *filtered_subscribers_.at(0),
                                                                                                *filtered_subscribers_.at(1),
                                                                                                *filtered_subscribers_.at(2),
                                                                                                *filtered_subscribers_.at(3));
+        syncronizer_for_four_->setAgePenalty(age_penalty_);
+        //syncronizer_for_four_->setInterMessageLowerBound(lower_bound_);
+        syncronizer_for_four_->setMaxIntervalDuration(ros::Duration(max_interval_));
+
         main_connection = syncronizer_for_four_->registerCallback(boost::bind(&CollisionDetectorDiagnoser::fourSensorsCallBack,this,_1, _2,_3,_4));
         break;
       case 5:
-        syncronizer_for_five_ = new message_filters::Synchronizer<MySyncPolicy5>(MySyncPolicy5(10), *filtered_subscribers_.at(0),
+        syncronizer_for_five_ = new message_filters::Synchronizer<MySyncPolicy5>(MySyncPolicy5(20), *filtered_subscribers_.at(0),
                                                                                              *filtered_subscribers_.at(1),
                                                                                              *filtered_subscribers_.at(2),
                                                                                              *filtered_subscribers_.at(3),
                                                                                              *filtered_subscribers_.at(4));
+        syncronizer_for_five_->setAgePenalty(age_penalty_);
+        //syncronizer_for_five_->setInterMessageLowerBound(lower_bound_);
+        syncronizer_for_five_->setMaxIntervalDuration(ros::Duration(max_interval_));
+
         main_connection = syncronizer_for_five_->registerCallback(boost::bind(&CollisionDetectorDiagnoser::fiveSensorsCallBack,this,_1, _2,_3,_4,_5));
         break;
 
