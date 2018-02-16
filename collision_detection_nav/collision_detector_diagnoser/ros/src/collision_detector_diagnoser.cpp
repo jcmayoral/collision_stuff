@@ -243,7 +243,7 @@ namespace collision_detector_diagnoser
     switch(sensor_number){
 
       case 2:
-        syncronizer_for_two_ = new message_filters::Synchronizer<MySyncPolicy2>(MySyncPolicy2(10), *filtered_subscribers_.at(0),
+        syncronizer_for_two_ = new message_filters::Synchronizer<MySyncPolicy2>(MySyncPolicy2(20), *filtered_subscribers_.at(0),
                                                                                                *filtered_subscribers_.at(1));
         syncronizer_for_two_->setAgePenalty(age_penalty_);
         //syncronizer_for_two_->setInterMessageLowerBound(lower_bound_);
