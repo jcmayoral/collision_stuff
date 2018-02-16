@@ -37,7 +37,7 @@ class ConsensusApproach : public SensorFusionApproach {
           }
         }
         if (counter >= v.size()*threshold){
-          ROS_WARN_STREAM("Consensus Collision Detected");
+          ROS_ERROR_STREAM("Consensus Collision Detected");
           ROS_DEBUG_STREAM("Counter " << counter);
           return true;
         }
@@ -60,7 +60,7 @@ class WeightedApproach : public SensorFusionApproach {
 
         ROS_DEBUG_STREAM("Count " << count);
         if ((count/max_value) >= threshold){
-          ROS_WARN_STREAM("Weighted Collision Detected: " << count << " Of " << max_value << " Percentage:" << (count/max_value));
+          ROS_ERROR_STREAM("Weighted Collision Detected: " << count << " Of " << max_value << " Percentage:" << (count/max_value));
           return true;
 
         }

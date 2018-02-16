@@ -92,7 +92,7 @@ namespace collision_detector_diagnoser
     percentage_threshold_ = config.percentage_threshold;
     sensor_number_ = config.sensor_sources;
     age_penalty_ = config.age_penalty;
-    max_interval_ = config.max_interval;
+    max_interval_ = std::numeric_limits< int32_t >::max() * config.max_interval;
     initialize(sensor_number_);
   }
 
@@ -108,7 +108,7 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::twoSensorsCallBack(const fusion_msgs::sensorFusionMsgConstPtr& detector_1,
                                                       const fusion_msgs::sensorFusionMsgConstPtr& detector_2){
-    ROS_INFO("TwoSensors");
+    ROS_DEBUG("TwoSensors");
     list <fusion_msgs::sensorFusionMsg> list;
     fusion_msgs::sensorFusionMsg tmp = *detector_1;
     list.push_back(tmp);
@@ -129,7 +129,7 @@ namespace collision_detector_diagnoser
   void CollisionDetectorDiagnoser::threeSensorsCallBack(const fusion_msgs::sensorFusionMsgConstPtr& detector_1,
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_2,
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_3){
-    ROS_INFO("Three Sensors");
+    ROS_DEBUG("Three Sensors");
 
     list <fusion_msgs::sensorFusionMsg> list;
     fusion_msgs::sensorFusionMsg tmp = *detector_1;
@@ -154,7 +154,7 @@ namespace collision_detector_diagnoser
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_2,
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_3,
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_4){
-    ROS_INFO("Four Sensors");
+    ROS_DEBUG("Four Sensors");
 
     list <fusion_msgs::sensorFusionMsg> list;
     fusion_msgs::sensorFusionMsg tmp = *detector_1;
@@ -182,7 +182,7 @@ namespace collision_detector_diagnoser
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_3,
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_4,
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_5){
-    ROS_INFO("Five Sensors");
+    ROS_DEBUG("Five Sensors");
 
     list <fusion_msgs::sensorFusionMsg> list;
     fusion_msgs::sensorFusionMsg tmp = *detector_1;
@@ -209,7 +209,7 @@ namespace collision_detector_diagnoser
 
 
   void CollisionDetectorDiagnoser::simpleCallBack(const fusion_msgs::sensorFusionMsg msg){
-    ROS_INFO("Simple Filtering");
+    ROS_DEBUG("Simple Filtering");
 
     list <fusion_msgs::sensorFusionMsg> list;
     fusion_msgs::sensorFusionMsg tmp = msg;
