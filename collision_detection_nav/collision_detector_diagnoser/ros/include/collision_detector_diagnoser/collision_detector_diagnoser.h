@@ -143,7 +143,8 @@ namespace collision_detector_diagnoser
       //Collision Orientations from sensors
       ros::Publisher orientation_pub_;
 
-
+      // Filter Params
+      int queue_size_;
       double age_penalty_;
       double max_interval_;
 

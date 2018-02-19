@@ -30,10 +30,11 @@ namespace collision_detector_diagnoser
   }
 
   void CollisionDetectorDiagnoser::instantiateServices(ros::NodeHandle nh){
-    nh.param("sensor_fusion/sensor_number", sensor_number_, 1);
-    nh.param("sensor_fusion/mode", mode_, 1);
-    nh.param("sensor_fusion/filter", filter_, true);
-    ROS_INFO_STREAM("mode" << mode_);
+    setDynamicReconfigureServer();
+    nh.param("sensor_fusion/sensor_number", sensor_number_);
+    nh.param("sensor_fusion/mode", mode_);
+    nh.param("sensor_fusion/filter", filter_);
+    ROS_DEBUG_STREAM(" Selected mode" << mode_);
     initialize(sensor_number_);
 
     strength_srv_client_ = nh.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
@@ -44,18 +45,18 @@ namespace collision_detector_diagnoser
     /*while (speak_pub_.getNumSubscribers() < 1){
       ROS_INFO_ONCE("Waiting Subscriber for say server");
     }*/
-    setDynamicReconfigureServer();
+
   }
 
 
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5), age_penalty_(-1.0), max_interval_(0.0)
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10)
   {
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
     fault_.cause_ = FaultTopology::UNKNOWN;
     ROS_INFO("Default Constructor CollisionDetectorDiagnoser");
   }
 
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(sensor_number), filter_(false), age_penalty_(-1.0), max_interval_(0.0)
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(sensor_number), filter_(false), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10)
   {
     //Used In teh Node
     ros::NodeHandle private_n("~");
@@ -93,6 +94,7 @@ namespace collision_detector_diagnoser
     sensor_number_ = config.sensor_sources;
     age_penalty_ = config.age_penalty;
     max_interval_ = std::numeric_limits< int32_t >::max() * config.max_interval;
+    queue_size_ = config.queue_size;
     initialize(sensor_number_);
   }
 
@@ -239,11 +241,11 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::registerCallbackForSyncronizers(int sensor_number){
 
-    ROS_INFO_STREAM("Set CB Sync");
+    ROS_DEBUG_STREAM("Set CB Sync");
     switch(sensor_number){
 
       case 2:
-        syncronizer_for_two_ = new message_filters::Synchronizer<MySyncPolicy2>(MySyncPolicy2(20), *filtered_subscribers_.at(0),
+        syncronizer_for_two_ = new message_filters::Synchronizer<MySyncPolicy2>(MySyncPolicy2(queue_size_), *filtered_subscribers_.at(0),
                                                                                                *filtered_subscribers_.at(1));
         syncronizer_for_two_->setAgePenalty(age_penalty_);
         //syncronizer_for_two_->setInterMessageLowerBound(lower_bound_);
@@ -252,7 +254,7 @@ namespace collision_detector_diagnoser
         main_connection = syncronizer_for_two_->registerCallback(boost::bind(&CollisionDetectorDiagnoser::twoSensorsCallBack,this,_1, _2));
         break;
       case 3:
-        syncronizer_for_three_ = new message_filters::Synchronizer<MySyncPolicy3>(MySyncPolicy3(20), *filtered_subscribers_.at(0),
+        syncronizer_for_three_ = new message_filters::Synchronizer<MySyncPolicy3>(MySyncPolicy3(queue_size_), *filtered_subscribers_.at(0),
                                                                                                      *filtered_subscribers_.at(1),
                                                                                                      *filtered_subscribers_.at(2));
         syncronizer_for_three_->setAgePenalty(age_penalty_);
@@ -263,7 +265,7 @@ namespace collision_detector_diagnoser
         main_connection = syncronizer_for_three_->registerCallback(boost::bind(&CollisionDetectorDiagnoser::threeSensorsCallBack,this,_1, _2,_3));
         break;
       case 4:
-        syncronizer_for_four_ = new message_filters::Synchronizer<MySyncPolicy4>(MySyncPolicy4(20), *filtered_subscribers_.at(0),
+        syncronizer_for_four_ = new message_filters::Synchronizer<MySyncPolicy4>(MySyncPolicy4(queue_size_), *filtered_subscribers_.at(0),
                                                                                                *filtered_subscribers_.at(1),
                                                                                                *filtered_subscribers_.at(2),
                                                                                                *filtered_subscribers_.at(3));
@@ -274,7 +276,7 @@ namespace collision_detector_diagnoser
         main_connection = syncronizer_for_four_->registerCallback(boost::bind(&CollisionDetectorDiagnoser::fourSensorsCallBack,this,_1, _2,_3,_4));
         break;
       case 5:
-        syncronizer_for_five_ = new message_filters::Synchronizer<MySyncPolicy5>(MySyncPolicy5(20), *filtered_subscribers_.at(0),
+        syncronizer_for_five_ = new message_filters::Synchronizer<MySyncPolicy5>(MySyncPolicy5(queue_size_), *filtered_subscribers_.at(0),
                                                                                              *filtered_subscribers_.at(1),
                                                                                              *filtered_subscribers_.at(2),
                                                                                              *filtered_subscribers_.at(3),
@@ -293,7 +295,7 @@ namespace collision_detector_diagnoser
 
 
   void CollisionDetectorDiagnoser::resetUnFilteredPublishers(){
-    ROS_INFO("Reset Unfilter");
+    ROS_DEBUG("Reset Unfilter");
     for (int i = 0; i< array_subcribers_.size();i++){//remove normal subscribers
       array_subcribers_[i].shutdown();
     }//endFor
@@ -302,7 +304,7 @@ namespace collision_detector_diagnoser
   }
 
   void CollisionDetectorDiagnoser::resetFilteredPublishers(){
-    ROS_INFO("Reset Filtered");
+    ROS_DEBUG("Reset Filtered");
     for(int i=0; i< filtered_subscribers_.size(); i++){
       filtered_subscribers_.at(i)->unsubscribe();// unsubscribe all filtered messages
     }//endFor
@@ -312,7 +314,7 @@ namespace collision_detector_diagnoser
   }
 
   void CollisionDetectorDiagnoser::setUnfilteredPublishers(int sensor_number, ros::NodeHandle nh){
-    ROS_INFO("Set Unfiltered Publishers");
+    ROS_DEBUG("Set Unfiltered Publishers");
     for (int i = 0; i< sensor_number;i++){//add normal subscribers
       ros::Subscriber sub = nh.subscribe("collisions_"+std::to_string(i), 10, &CollisionDetectorDiagnoser::simpleCallBack, this);
       array_subcribers_.push_back(sub);
@@ -320,7 +322,7 @@ namespace collision_detector_diagnoser
   }
 
   void CollisionDetectorDiagnoser::setFilteredPublishers(int sensor_number, ros::NodeHandle nh){
-    ROS_INFO("Set Filtered Publishers");
+    ROS_DEBUG("Set Filtered Publishers");
 
     for(int i=0; i< sensor_number; i++){// create subscribers to filter
       filtered_subscribers_.push_back(new message_filters::Subscriber<fusion_msgs::sensorFusionMsg>(nh, "collisions_"+std::to_string(i), 10));
@@ -332,8 +334,8 @@ namespace collision_detector_diagnoser
   {
     ros::NodeHandle nh;
     sensor_number_ = sensor_number;
-    ROS_INFO_STREAM("initializing " << sensor_number << " sensors");
-    ROS_INFO_STREAM("Method" << std::to_string(mode_) << " Selected");
+    ROS_DEBUG_STREAM("initializing " << sensor_number << " sensors");
+    ROS_DEBUG_STREAM("Method" << std::to_string(mode_) << " Selected");
 
     if(!filter_){//unfiltered
       resetFilteredPublishers();
