@@ -135,9 +135,8 @@ namespace collision_detector_diagnoser
       double percentage_threshold_;
 
       SensorFusionApproach default_approach_;
-      ConsensusApproach consensus_approach_;
+      VotingApproach voting_approach_;
       WeightedApproach weighted_approach_;
-      KalmanFilterApproach kalman_approach_;
 
       SensorFusionApproach* fusion_approach_;
 
