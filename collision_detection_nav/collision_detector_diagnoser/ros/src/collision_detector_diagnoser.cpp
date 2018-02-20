@@ -20,13 +20,9 @@ namespace collision_detector_diagnoser
       geometry_msgs::Pose pose;
       pose.orientation = tf::createQuaternionMsgFromYaw (it->angle);
       array_msg.poses.push_back(pose);
-      //if(it->msg == fusion_msgs::sensorFusionMsg::ERROR){
-      //  return true;
-      //}
     }
 
     orientation_pub_.publish(array_msg);
-
   }
 
   void CollisionDetectorDiagnoser::instantiateServices(ros::NodeHandle nh){
@@ -42,9 +38,6 @@ namespace collision_detector_diagnoser
     speak_pub_ = nh.advertise<std_msgs::String>("/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = nh.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
-    /*while (speak_pub_.getNumSubscribers() < 1){
-      ROS_INFO_ONCE("Waiting Subscriber for say server");
-    }*/
 
   }
 
@@ -66,11 +59,6 @@ namespace collision_detector_diagnoser
     orientations_srv_client_ = private_n.serviceClient<footprint_checker::CollisionCheckerMsg>("collision_checker");
     speak_pub_ = private_n.advertise<std_msgs::String>("/say",1);
     ros::Duration(2).sleep();
-
-    /*while (speak_pub_.getNumSubscribers() < 1){
-      ROS_INFO_ONCE("Waiting Subscriber for say server");
-    }*/
-
     orientation_pub_ = private_n.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
     setDynamicReconfigureServer();
 
@@ -111,11 +99,8 @@ namespace collision_detector_diagnoser
   void CollisionDetectorDiagnoser::twoSensorsCallBack(const fusion_msgs::sensorFusionMsgConstPtr& detector_1,
                                                       const fusion_msgs::sensorFusionMsgConstPtr& detector_2){
     ROS_DEBUG("TwoSensors");
-    list <fusion_msgs::sensorFusionMsg> list;
-    fusion_msgs::sensorFusionMsg tmp = *detector_1;
-    list.push_back(tmp);
-    tmp = *detector_2;
-    list.push_back(tmp);
+    fusion_msgs::sensorFusionMsg array[] = {*detector_1,*detector_2};
+    std::list<fusion_msgs::sensorFusionMsg> list(array, array + sizeof(array)/sizeof(fusion_msgs::sensorFusionMsg));
 
     if(fusion_approach_->detect(list)){
       plotOrientation(list);
@@ -132,14 +117,8 @@ namespace collision_detector_diagnoser
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_2,
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_3){
     ROS_DEBUG("Three Sensors");
-
-    list <fusion_msgs::sensorFusionMsg> list;
-    fusion_msgs::sensorFusionMsg tmp = *detector_1;
-    list.push_back(tmp);
-    tmp = *detector_2;
-    list.push_back(tmp);
-    tmp = *detector_3;
-    list.push_back(tmp);
+    fusion_msgs::sensorFusionMsg array[] = {*detector_1,*detector_2,*detector_3};
+    std::list<fusion_msgs::sensorFusionMsg> list(array, array + sizeof(array)/sizeof(fusion_msgs::sensorFusionMsg));
 
     if(fusion_approach_->detect(list)){
       plotOrientation(list);
@@ -157,16 +136,9 @@ namespace collision_detector_diagnoser
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_3,
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_4){
     ROS_DEBUG("Four Sensors");
+    fusion_msgs::sensorFusionMsg array[] = {*detector_1,*detector_2,*detector_3, *detector_4};
+    std::list<fusion_msgs::sensorFusionMsg> list(array, array + sizeof(array)/sizeof(fusion_msgs::sensorFusionMsg));
 
-    list <fusion_msgs::sensorFusionMsg> list;
-    fusion_msgs::sensorFusionMsg tmp = *detector_1;
-    list.push_back(tmp);
-    tmp = *detector_2;
-    list.push_back(tmp);
-    tmp = *detector_3;
-    list.push_back(tmp);
-    tmp = *detector_4;
-    list.push_back(tmp);
 
     if(fusion_approach_->detect(list)){
       plotOrientation(list);
@@ -186,17 +158,8 @@ namespace collision_detector_diagnoser
                                                         const fusion_msgs::sensorFusionMsgConstPtr& detector_5){
     ROS_DEBUG("Five Sensors");
 
-    list <fusion_msgs::sensorFusionMsg> list;
-    fusion_msgs::sensorFusionMsg tmp = *detector_1;
-    list.push_back(tmp);
-    tmp = *detector_2;
-    list.push_back(tmp);
-    tmp = *detector_3;
-    list.push_back(tmp);
-    tmp = *detector_4;
-    list.push_back(tmp);
-    tmp = *detector_5;
-    list.push_back(tmp);
+    fusion_msgs::sensorFusionMsg array[] = {*detector_1,*detector_2,*detector_3, *detector_4, *detector_5};
+    std::list<fusion_msgs::sensorFusionMsg> list(array, array + sizeof(array)/sizeof(fusion_msgs::sensorFusionMsg));
 
     if(fusion_approach_->detect(list)){
       plotOrientation(list);
@@ -295,7 +258,7 @@ namespace collision_detector_diagnoser
 
 
   void CollisionDetectorDiagnoser::resetUnFilteredPublishers(){
-    ROS_DEBUG("Reset Unfilter");
+    ROS_DEBUG("Reset Unfilter Subscribers");
     for (int i = 0; i< array_subcribers_.size();i++){//remove normal subscribers
       array_subcribers_[i].shutdown();
     }//endFor
@@ -304,7 +267,7 @@ namespace collision_detector_diagnoser
   }
 
   void CollisionDetectorDiagnoser::resetFilteredPublishers(){
-    ROS_DEBUG("Reset Filtered");
+    ROS_DEBUG("Reset Filtered subscribers");
     for(int i=0; i< filtered_subscribers_.size(); i++){
       filtered_subscribers_.at(i)->unsubscribe();// unsubscribe all filtered messages
     }//endFor
