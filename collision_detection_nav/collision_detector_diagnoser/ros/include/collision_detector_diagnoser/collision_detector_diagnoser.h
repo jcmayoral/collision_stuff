@@ -21,7 +21,7 @@
 namespace collision_detector_diagnoser
 {
 
-  class CollisionDetectorDiagnoser : public fault_core::FaultDetector
+  class CollisionDetectorDiagnoser : public fault_core::FaultDetector, public CustomMessageFilter
   {
     public:
 
