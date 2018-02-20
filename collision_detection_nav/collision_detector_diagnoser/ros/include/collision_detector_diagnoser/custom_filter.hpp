@@ -26,7 +26,7 @@ class CustomMessageFilter{
 
     for (int i=0; i != input_number; ++i){
       ros::Subscriber tmp_subscribe;  //blabla
-      syncronizer_ = new boost::bind(&subscribe,sub, i);
+      ros::Subscriber subLeft = nh.subscribe<sensor_msgs::Image> ("/collisions" + str(i), 10,boost::bind(&subscribe, _1, i));
     }
 
   }
@@ -37,5 +37,4 @@ class CustomMessageFilter{
 private:
   double timeout_;
   bool *collision_flags_;
-  boost::function<fusion_msgs::sensorFusionMsg, int> syncronizer_;
-}
+};
