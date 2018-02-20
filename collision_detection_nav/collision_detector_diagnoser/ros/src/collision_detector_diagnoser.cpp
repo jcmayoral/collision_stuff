@@ -12,6 +12,13 @@ using namespace message_filters;
 namespace collision_detector_diagnoser
 {
 
+  void CollisionDetectorDiagnoser::listenTime(){
+    std::cout <<"diag listen";
+    while(true){
+      isCollisionDetected = true;
+    }
+  }
+
   void CollisionDetectorDiagnoser::plotOrientation(list<fusion_msgs::sensorFusionMsg> v){
     geometry_msgs::PoseArray array_msg;
     array_msg.header.frame_id = "base_link";
@@ -42,14 +49,14 @@ namespace collision_detector_diagnoser
   }
 
 
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10)
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10), is_custom_filter_requested_(false)
   {
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
     fault_.cause_ = FaultTopology::UNKNOWN;
     ROS_INFO("Default Constructor CollisionDetectorDiagnoser");
   }
 
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(sensor_number), filter_(false), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10)
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(sensor_number), filter_(false), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10), is_custom_filter_requested_(false)
   {
     //Used In teh Node
     ros::NodeHandle private_n("~");
@@ -83,6 +90,7 @@ namespace collision_detector_diagnoser
     age_penalty_ = config.age_penalty;
     max_interval_ = std::numeric_limits< int32_t >::max() * config.max_interval;
     queue_size_ = config.queue_size;
+    is_custom_filter_requested_ = config.custom_filter;
     initialize(sensor_number_);
   }
 
@@ -300,17 +308,23 @@ namespace collision_detector_diagnoser
     ROS_DEBUG_STREAM("initializing " << sensor_number << " sensors");
     ROS_DEBUG_STREAM("Method" << std::to_string(mode_) << " Selected");
 
-    if(!filter_){//unfiltered
-      resetFilteredPublishers();
-      setUnfilteredPublishers(sensor_number, nh);
-    }//Endif
 
-    else{// Switching to filtered messages
+    if (is_custom_filter_requested_){
       resetUnFilteredPublishers();
       unregisterCallbackForSyncronizers();
-      setFilteredPublishers(sensor_number, nh);
-    }//endElse
-
+      start(sensor_number);
+    }
+    else {
+      if(!filter_){//unfiltered
+        resetFilteredPublishers();
+        setUnfilteredPublishers(sensor_number, nh);
+      }//Endif
+      else{// Switching to filtered messages
+        resetUnFilteredPublishers();
+        unregisterCallbackForSyncronizers();
+        setFilteredPublishers(sensor_number, nh);
+      }//endElse
+    }
     //Swap betweenModes;
     selectMode();
 

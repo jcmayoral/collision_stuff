@@ -9,12 +9,8 @@ namespace collision_detector_diagnoser
 
     };
     ~CustomMessageFilter(){
-      
-    };
 
-    bool detect(list<fusion_msgs::sensorFusionMsg> v){
-      return true;
-    }
+    };
 
     void stop(){
       delete [] collision_flags_;
@@ -26,7 +22,8 @@ namespace collision_detector_diagnoser
       start(input_number);
     }
 
-    void listenTime(){
+    virtual void listenTime(){
+      std::cout<<"original listen";
 
     }
 
@@ -54,6 +51,7 @@ namespace collision_detector_diagnoser
     }
 
     void subscribeCB(const fusion_msgs::sensorFusionMsgConstPtr& detector, int index){
+      ROS_INFO("Custom CB");
       if (detector->msg == 2){
         collision_flags_[index] = true;
       }

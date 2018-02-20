@@ -25,6 +25,8 @@ namespace collision_detector_diagnoser
   {
     public:
 
+      void listenTime();
+
       /**
        * @brief Constructor
        */
@@ -149,6 +151,7 @@ namespace collision_detector_diagnoser
       double age_penalty_;
       double max_interval_;
 
+      bool is_custom_filter_requested_;
   };
 
 }  // namespace collision_detector_diagnoser
