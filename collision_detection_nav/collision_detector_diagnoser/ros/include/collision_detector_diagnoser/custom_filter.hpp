@@ -26,11 +26,17 @@ namespace collision_detector_diagnoser
 
     }
 
+    virtual void timeoutReset(){
+      
+    }
+
     void start(int observers_number){
        collision_flags_ = new bool[observers_number];
        registerCallback(observers_number);
        monitoring_thread_ = new std::thread(&CustomMessageFilter::listenTime,this);
        monitoring_thread_->detach();                // pauses until first finishes
+       timeout_reset_thread_ = new std::thread(&CustomMessageFilter::timeoutReset,this);
+       timeout_reset_thread_->detach();
     }
 
     void setTimeOut(double new_timeout){
@@ -61,5 +67,6 @@ namespace collision_detector_diagnoser
     ros::NodeHandle nh_;
     bool *collision_flags_;
     std::thread *monitoring_thread_;
+    std::thread *timeout_reset_thread_;
   };
 };//end namespace

@@ -27,6 +27,8 @@ namespace collision_detector_diagnoser
 
       void listenTime();
 
+      void timeoutReset();
+
       /**
        * @brief Constructor
        */
@@ -96,7 +98,6 @@ namespace collision_detector_diagnoser
       void dyn_reconfigureCB(collision_detector_diagnoser::diagnoserConfig &config, uint32_t level);
 
       void selectMode();
-
 
       void plotOrientation(list<fusion_msgs::sensorFusionMsg> v);
 

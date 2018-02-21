@@ -90,6 +90,12 @@ namespace collision_detector_diagnoser
     }
   }
 
+  void CollisionDetectorDiagnoser::timeoutReset(){
+    while(is_custom_filter_requested_){
+       std::this_thread::sleep_for(std::chrono::duration<double>(getTimeOut()));
+       ROS_DEBUG("RESET");
+    }
+  }
   void CollisionDetectorDiagnoser::plotOrientation(list<fusion_msgs::sensorFusionMsg> v){
     geometry_msgs::PoseArray array_msg;
     array_msg.header.frame_id = "base_link";
@@ -188,7 +194,7 @@ namespace collision_detector_diagnoser
     fusion_msgs::sensorFusionMsg tmp = msg;
     list.push_back(msg);
 
-    
+
     //FOR TESTING
     if(fusion_approach_->detect(list)){
       plotOrientation(list);
