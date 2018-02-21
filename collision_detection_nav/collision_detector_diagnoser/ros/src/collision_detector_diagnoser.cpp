@@ -86,6 +86,7 @@ namespace collision_detector_diagnoser
   }
 
   void CollisionDetectorDiagnoser::listenTime(){
+
     int current_collisions;
 
     while(is_custom_filter_requested_){
@@ -94,11 +95,12 @@ namespace collision_detector_diagnoser
       for( unsigned int a = 0; a < getInputNumber(); a = a + 1 ){
 
         if (getCollisionFlag(a)){
+          ROS_WARN_STREAM("Collision Found in topic number " << a);
           current_collisions++;
         }
       }
 
-      if(current_collisions > int(getCustomThrehold()* getInputNumber())){
+      if(current_collisions >= int(getCustomThrehold()* getInputNumber())){
         isCollisionDetected = true;
       }
       else{
@@ -116,7 +118,7 @@ namespace collision_detector_diagnoser
        auto end = std::chrono::high_resolution_clock::now();
        std::chrono::duration<double, std::milli> elapsed = end-start;
        ROS_DEBUG("RESET");
-       std::cout << "Waited " << elapsed.count() << " ms\n";
+       resetCollisionFlags();
     }
   }
   void CollisionDetectorDiagnoser::plotOrientation(list<fusion_msgs::sensorFusionMsg> v){
@@ -334,19 +336,17 @@ namespace collision_detector_diagnoser
     ROS_DEBUG_STREAM("initializing " << sensor_number << " sensors");
     ROS_DEBUG_STREAM("Method" << std::to_string(mode_) << " Selected");
 
+    stop(); //Stop CustomFilter
 
     if (is_custom_filter_requested_){
       ROS_INFO("Custom Filtering Requested");
       resetUnFilteredPublishers();
       unregisterCallbackForSyncronizers();
-      start(sensor_number);
-      ros::Duration(2).sleep();
+      start(sensor_number_);
       ROS_INFO("Custom Filtering Ready");
 
     }
     else {
-
-      stop(); //Stop CustomFilter
 
       if(!filter_){//unfiltered
         resetFilteredPublishers();
@@ -378,10 +378,6 @@ namespace collision_detector_diagnoser
 
   bool CollisionDetectorDiagnoser::detectFault()
   {
-    //ROS_DEBUG("SimpleCollisionDetector Detect Fault");
-    //if (isCollisionDetected){
-    // isolateFault();
-    //}
     return isCollisionDetected;
   }
 

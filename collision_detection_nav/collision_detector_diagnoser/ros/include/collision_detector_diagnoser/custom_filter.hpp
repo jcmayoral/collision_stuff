@@ -37,14 +37,21 @@ namespace collision_detector_diagnoser
 
     }
 
+    void resetCollisionFlags(){
+      for (int b = 0; b < input_number_;++b){
+        collision_flags_[b] = false;
+      }
+    }
+
     void start(int observers_number){
-       collision_flags_ = new bool[observers_number];
-       registerCallback(observers_number);
-       monitoring_thread_ = new std::thread(&CustomMessageFilter::listenTime,this);
-       monitoring_thread_->detach();                // pauses until first finishes
-       timeout_reset_thread_ = new std::thread(&CustomMessageFilter::timeoutReset,this);
-       timeout_reset_thread_->detach();
-       input_number_ = observers_number;
+      input_number_ = observers_number;
+      collision_flags_ = new bool[observers_number];
+      resetCollisionFlags();
+      registerCallback(observers_number);
+      monitoring_thread_ = new std::thread(&CustomMessageFilter::listenTime,this);
+      monitoring_thread_->detach();                // pauses until first finishes
+      timeout_reset_thread_ = new std::thread(&CustomMessageFilter::timeoutReset,this);
+      timeout_reset_thread_->detach();
     }
 
     void setTimeOut(double new_timeout){
