@@ -120,7 +120,7 @@ namespace collision_detector_diagnoser
        auto end = std::chrono::high_resolution_clock::now();
        std::chrono::duration<double, std::milli> elapsed = end-start;
        ROS_DEBUG("RESET");
-       resetCollisionFlags();
+       resetCollisionFlags(is_custom_filter_requested_);
     }
   }
   void CollisionDetectorDiagnoser::plotOrientation(list<fusion_msgs::sensorFusionMsg> v){

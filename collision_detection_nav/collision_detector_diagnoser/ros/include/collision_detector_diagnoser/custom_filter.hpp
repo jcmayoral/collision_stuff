@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <thread>
+#include <mutex>
 
 namespace collision_detector_diagnoser
 {
@@ -13,8 +14,8 @@ namespace collision_detector_diagnoser
     };
 
     void stop(){
-      delete [] collision_flags_;
       removeSubscribers();
+      delete [] collision_flags_;
     }
 
     void removeSubscribers(){
@@ -37,7 +38,10 @@ namespace collision_detector_diagnoser
 
     }
 
-    void resetCollisionFlags(){
+    void resetCollisionFlags(bool flag){
+      if (!flag){
+        return;
+      }
       for (int b = 0; b < input_number_;++b){
         collision_flags_[b] = false;
       }
@@ -46,7 +50,7 @@ namespace collision_detector_diagnoser
     void start(int observers_number){
       input_number_ = observers_number;
       collision_flags_ = new bool[observers_number];
-      resetCollisionFlags();
+      resetCollisionFlags(true);
       registerCallback(observers_number);
       monitoring_thread_ = new std::thread(&CustomMessageFilter::listenTime,this);
       monitoring_thread_->detach();                // pauses until first finishes
@@ -87,9 +91,12 @@ namespace collision_detector_diagnoser
     }
 
     void subscribeCB(const fusion_msgs::sensorFusionMsgConstPtr& detector, int index){
+      mutex mu;
+      mu.lock();
       if (detector->msg == 2){
         collision_flags_[index] = true;
       }
+      mu.unlock();
     }
 
   private:
