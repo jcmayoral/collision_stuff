@@ -14,6 +14,14 @@ namespace collision_detector_diagnoser
 
     void stop(){
       delete [] collision_flags_;
+      removeSubscribers();
+    }
+
+    void removeSubscribers(){
+      for (int i = 0; i< my_subscribers_.size();i++){//remove normal subscribers
+        my_subscribers_[i].shutdown();
+      }//endFor
+      my_subscribers_.clear();
     }
 
     void reset(){
@@ -65,7 +73,8 @@ namespace collision_detector_diagnoser
 
     void registerCallback(int input_number){
       for (int i=0; i < input_number; ++i){
-        my_subscriber_ = nh_.subscribe<fusion_msgs::sensorFusionMsg> ("/collisions_" +std::to_string(i), 10,boost::bind(&CustomMessageFilter::subscribeCB,this, _1, i));
+        ros::Subscriber sub = nh_.subscribe<fusion_msgs::sensorFusionMsg> ("/collisions_" +std::to_string(i), 10,boost::bind(&CustomMessageFilter::subscribeCB,this, _1, i));
+        my_subscribers_.push_back(sub);
         }
 
     }
@@ -80,7 +89,7 @@ namespace collision_detector_diagnoser
   private:
     int timeout_;
     int input_number_;
-    ros::Subscriber my_subscriber_;
+    std::vector<ros::Subscriber> my_subscribers_;
     ros::NodeHandle nh_;
     bool *collision_flags_;
     std::thread *monitoring_thread_;
