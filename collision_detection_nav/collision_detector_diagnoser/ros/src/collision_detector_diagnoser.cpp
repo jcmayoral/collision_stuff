@@ -101,6 +101,8 @@ namespace collision_detector_diagnoser
       }
 
       if(current_collisions >= int(getCustomThrehold()* getInputNumber())){
+        ROS_ERROR_STREAM("CUSTOM COLLISION FOUND");
+
         isCollisionDetected = true;
       }
       else{

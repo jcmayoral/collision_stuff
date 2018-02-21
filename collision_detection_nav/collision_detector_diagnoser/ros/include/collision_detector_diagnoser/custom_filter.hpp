@@ -87,7 +87,6 @@ namespace collision_detector_diagnoser
     }
 
     void subscribeCB(const fusion_msgs::sensorFusionMsgConstPtr& detector, int index){
-      ROS_INFO("Custom CB");
       if (detector->msg == 2){
         collision_flags_[index] = true;
       }
