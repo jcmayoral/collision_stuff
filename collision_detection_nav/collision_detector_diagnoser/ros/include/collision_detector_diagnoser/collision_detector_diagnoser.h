@@ -16,14 +16,19 @@
 #include <collision_detector_diagnoser/sync_policies.h>
 #include <collision_detector_diagnoser/sensor_fusion_methods.hpp>
 #include <list>
+#include <chrono>
 #include <collision_detector_diagnoser/custom_filter.hpp>
 
 namespace collision_detector_diagnoser
 {
 
-  class CollisionDetectorDiagnoser : public fault_core::FaultDetector
+  class CollisionDetectorDiagnoser : public fault_core::FaultDetector, public CustomMessageFilter
   {
     public:
+
+      void listenTime();
+
+      void timeoutReset();
 
       /**
        * @brief Constructor
@@ -95,7 +100,6 @@ namespace collision_detector_diagnoser
 
       void selectMode();
 
-
       void plotOrientation(list<fusion_msgs::sensorFusionMsg> v);
 
     private:
@@ -149,6 +153,7 @@ namespace collision_detector_diagnoser
       double age_penalty_;
       double max_interval_;
 
+      bool is_custom_filter_requested_;
   };
 
 }  // namespace collision_detector_diagnoser
