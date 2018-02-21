@@ -86,8 +86,25 @@ namespace collision_detector_diagnoser
   }
 
   void CollisionDetectorDiagnoser::listenTime(){
+    int current_collisions;
+
     while(is_custom_filter_requested_){
-      isCollisionDetected = true;
+      current_collisions = 0;
+
+      for( unsigned int a = 0; a < getInputNumber(); a = a + 1 ){
+
+        if (getCollisionFlag(a)){
+          current_collisions++;
+        }
+      }
+
+      if(current_collisions > int(getCustomThrehold()* getInputNumber())){
+        isCollisionDetected = true;
+      }
+      else{
+        isCollisionDetected = false;
+      }
+
     }
   }
 
@@ -345,6 +362,7 @@ namespace collision_detector_diagnoser
     selectMode();
 
     //Update Threshold
+    setCustomThreshold(percentage_threshold_);
     fusion_approach_->setThreshold(percentage_threshold_);
 
   }

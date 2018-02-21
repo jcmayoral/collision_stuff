@@ -17,9 +17,8 @@ namespace collision_detector_diagnoser
     }
 
     void reset(){
-      int input_number = (sizeof(collision_flags_)/sizeof(*collision_flags_));
       stop();
-      start(input_number);
+      start(input_number_);
     }
 
     virtual void listenTime(){
@@ -37,6 +36,7 @@ namespace collision_detector_diagnoser
        monitoring_thread_->detach();                // pauses until first finishes
        timeout_reset_thread_ = new std::thread(&CustomMessageFilter::timeoutReset,this);
        timeout_reset_thread_->detach();
+       input_number_ = observers_number;
     }
 
     void setTimeOut(double new_timeout){
@@ -45,6 +45,22 @@ namespace collision_detector_diagnoser
 
     int getTimeOut(){
       return timeout_;
+    }
+
+    int getInputNumber(){
+      return input_number_;
+    }
+
+    void setCustomThreshold(double new_threshold){
+      custom_threshold_ = new_threshold;
+    }
+
+    double getCustomThrehold(){
+      return custom_threshold_;
+    }
+
+    bool getCollisionFlag(int index){
+      return collision_flags_[index];
     }
 
     void registerCallback(int input_number){
@@ -63,10 +79,12 @@ namespace collision_detector_diagnoser
 
   private:
     int timeout_;
+    int input_number_;
     ros::Subscriber my_subscriber_;
     ros::NodeHandle nh_;
     bool *collision_flags_;
     std::thread *monitoring_thread_;
     std::thread *timeout_reset_thread_;
+    double custom_threshold_;
   };
 };//end namespace
