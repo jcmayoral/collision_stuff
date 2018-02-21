@@ -27,7 +27,7 @@ namespace collision_detector_diagnoser
     }
 
     virtual void timeoutReset(){
-      
+
     }
 
     void start(int observers_number){
@@ -43,7 +43,7 @@ namespace collision_detector_diagnoser
       timeout_ = new_timeout;
     }
 
-    double getTimeOut(){
+    int getTimeOut(){
       return timeout_;
     }
 
@@ -62,7 +62,7 @@ namespace collision_detector_diagnoser
     }
 
   private:
-    double timeout_;
+    int timeout_;
     ros::Subscriber my_subscriber_;
     ros::NodeHandle nh_;
     bool *collision_flags_;

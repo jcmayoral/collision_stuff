@@ -75,6 +75,7 @@ namespace collision_detector_diagnoser
     max_interval_ = std::numeric_limits< int32_t >::max() * config.max_interval;
     queue_size_ = config.queue_size;
     is_custom_filter_requested_ = config.custom_filter;
+    setTimeOut(config.custom_timeout);
     initialize(sensor_number_);
   }
 
@@ -92,8 +93,13 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::timeoutReset(){
     while(is_custom_filter_requested_){
-       std::this_thread::sleep_for(std::chrono::duration<double>(getTimeOut()));
+       //std::this_thread::sleep_for(std::chrono::seconds<double>(getTimeOut()));
+       auto start = std::chrono::high_resolution_clock::now();
+       std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
+       auto end = std::chrono::high_resolution_clock::now();
+       std::chrono::duration<double, std::milli> elapsed = end-start;
        ROS_DEBUG("RESET");
+       std::cout << "Waited " << elapsed.count() << " ms\n";
     }
   }
   void CollisionDetectorDiagnoser::plotOrientation(list<fusion_msgs::sensorFusionMsg> v){

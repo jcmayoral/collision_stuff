@@ -16,6 +16,7 @@
 #include <collision_detector_diagnoser/sync_policies.h>
 #include <collision_detector_diagnoser/sensor_fusion_methods.hpp>
 #include <list>
+#include <chrono>
 #include <collision_detector_diagnoser/custom_filter.hpp>
 
 namespace collision_detector_diagnoser
