@@ -23,7 +23,6 @@ namespace collision_detector_diagnoser
     }
 
     virtual void listenTime(){
-      std::cout<<"original listen";
 
     }
 
@@ -31,7 +30,7 @@ namespace collision_detector_diagnoser
        collision_flags_ = new bool[observers_number];
        registerCallback(observers_number);
        monitoring_thread_ = new std::thread(&CustomMessageFilter::listenTime,this);
-       monitoring_thread_->join();                // pauses until first finishes
+       monitoring_thread_->detach();                // pauses until first finishes
     }
 
     void setTimeOut(double new_timeout){
@@ -43,8 +42,8 @@ namespace collision_detector_diagnoser
     }
 
     void registerCallback(int input_number){
-      for (int i=0; i != input_number; ++i){
-        my_subscriber_ = nh_.subscribe<fusion_msgs::sensorFusionMsg> ("/collisions_" +std::to_string(i), 10,boost::bind(&CustomMessageFilter::subscribeCB,_1, i,this),this);
+      for (int i=0; i < input_number; ++i){
+        my_subscriber_ = nh_.subscribe<fusion_msgs::sensorFusionMsg> ("/collisions_" +std::to_string(i), 10,boost::bind(&CustomMessageFilter::subscribeCB,this, _1, i));
         }
 
     }

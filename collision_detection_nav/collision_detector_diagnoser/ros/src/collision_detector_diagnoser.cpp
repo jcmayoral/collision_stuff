@@ -13,8 +13,8 @@ namespace collision_detector_diagnoser
 {
 
   void CollisionDetectorDiagnoser::listenTime(){
-    std::cout <<"diag listen";
     while(true){
+      ROS_INFO("Waiting for timeout ");
       isCollisionDetected = true;
     }
   }
@@ -280,7 +280,6 @@ namespace collision_detector_diagnoser
       filtered_subscribers_.at(i)->unsubscribe();// unsubscribe all filtered messages
     }//endFor
 
-    //registerCallbackForSyncronizers(sensor_number); //initiate the syncronizers which belongs to the selection
     filtered_subscribers_.clear();
   }
 
@@ -310,11 +309,18 @@ namespace collision_detector_diagnoser
 
 
     if (is_custom_filter_requested_){
+      ROS_INFO("Custom Filtering Requested");
       resetUnFilteredPublishers();
       unregisterCallbackForSyncronizers();
       start(sensor_number);
+      ros::Duration(2).sleep();
+      ROS_INFO("Custom Filtering Ready");
+
     }
     else {
+
+      stop(); //Stop CustomFilter
+
       if(!filter_){//unfiltered
         resetFilteredPublishers();
         setUnfilteredPublishers(sensor_number, nh);
