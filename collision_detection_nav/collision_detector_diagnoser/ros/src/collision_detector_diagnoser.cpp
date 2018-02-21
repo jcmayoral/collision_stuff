@@ -12,43 +12,6 @@ using namespace message_filters;
 namespace collision_detector_diagnoser
 {
 
-  void CollisionDetectorDiagnoser::listenTime(){
-    while(true){
-      ROS_INFO("Waiting for timeout ");
-      isCollisionDetected = true;
-    }
-  }
-
-  void CollisionDetectorDiagnoser::plotOrientation(list<fusion_msgs::sensorFusionMsg> v){
-    geometry_msgs::PoseArray array_msg;
-    array_msg.header.frame_id = "base_link";
-
-    for (std::list<fusion_msgs::sensorFusionMsg>::iterator it=v.begin(); it != v.end(); ++it){
-      geometry_msgs::Pose pose;
-      pose.orientation = tf::createQuaternionMsgFromYaw (it->angle);
-      array_msg.poses.push_back(pose);
-    }
-
-    orientation_pub_.publish(array_msg);
-  }
-
-  void CollisionDetectorDiagnoser::instantiateServices(ros::NodeHandle nh){
-    setDynamicReconfigureServer();
-    nh.param("sensor_fusion/sensor_number", sensor_number_);
-    nh.param("sensor_fusion/mode", mode_);
-    nh.param("sensor_fusion/filter", filter_);
-    ROS_DEBUG_STREAM(" Selected mode" << mode_);
-    initialize(sensor_number_);
-
-    strength_srv_client_ = nh.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
-    orientations_srv_client_ = nh.serviceClient<footprint_checker::CollisionCheckerMsg>("/collision_checker");
-    speak_pub_ = nh.advertise<std_msgs::String>("/say",1);
-    ros::Duration(2).sleep();
-    orientation_pub_ = nh.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
-
-  }
-
-
   CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10), is_custom_filter_requested_(false)
   {
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
@@ -73,6 +36,27 @@ namespace collision_detector_diagnoser
     ROS_INFO("Constructor CollisionDetectorDiagnoser");
   }
 
+  CollisionDetectorDiagnoser::~CollisionDetectorDiagnoser()
+  {
+
+  }
+
+  void CollisionDetectorDiagnoser::instantiateServices(ros::NodeHandle nh){
+    setDynamicReconfigureServer();
+    nh.param("sensor_fusion/sensor_number", sensor_number_);
+    nh.param("sensor_fusion/mode", mode_);
+    nh.param("sensor_fusion/filter", filter_);
+    ROS_DEBUG_STREAM(" Selected mode" << mode_);
+    initialize(sensor_number_);
+
+    strength_srv_client_ = nh.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
+    orientations_srv_client_ = nh.serviceClient<footprint_checker::CollisionCheckerMsg>("/collision_checker");
+    speak_pub_ = nh.advertise<std_msgs::String>("/say",1);
+    ros::Duration(2).sleep();
+    orientation_pub_ = nh.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
+
+  }
+
   void CollisionDetectorDiagnoser::setDynamicReconfigureServer(){
     std::string node_handler_name("collision_detector_diagnoser");
     ros::NodeHandle nh_for_dyn("~/"+ node_handler_name);
@@ -94,15 +78,32 @@ namespace collision_detector_diagnoser
     initialize(sensor_number_);
   }
 
-  CollisionDetectorDiagnoser::~CollisionDetectorDiagnoser()
-  {
-
-  }
 
   fault_core::FaultTopology CollisionDetectorDiagnoser::getFault()
   {
      return fault_;
   }
+
+  void CollisionDetectorDiagnoser::listenTime(){
+    while(is_custom_filter_requested_){
+      isCollisionDetected = true;
+    }
+  }
+
+  void CollisionDetectorDiagnoser::plotOrientation(list<fusion_msgs::sensorFusionMsg> v){
+    geometry_msgs::PoseArray array_msg;
+    array_msg.header.frame_id = "base_link";
+
+    for (std::list<fusion_msgs::sensorFusionMsg>::iterator it=v.begin(); it != v.end(); ++it){
+      geometry_msgs::Pose pose;
+      pose.orientation = tf::createQuaternionMsgFromYaw (it->angle);
+      array_msg.poses.push_back(pose);
+    }
+
+    orientation_pub_.publish(array_msg);
+  }
+
+
 
   void CollisionDetectorDiagnoser::twoSensorsCallBack(const fusion_msgs::sensorFusionMsgConstPtr& detector_1,
                                                       const fusion_msgs::sensorFusionMsgConstPtr& detector_2){
@@ -183,11 +184,11 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::simpleCallBack(const fusion_msgs::sensorFusionMsg msg){
     ROS_DEBUG("Simple Filtering");
-
     list <fusion_msgs::sensorFusionMsg> list;
     fusion_msgs::sensorFusionMsg tmp = msg;
     list.push_back(msg);
 
+    
     //FOR TESTING
     if(fusion_approach_->detect(list)){
       plotOrientation(list);
@@ -214,7 +215,6 @@ namespace collision_detector_diagnoser
 
     ROS_DEBUG_STREAM("Set CB Sync");
     switch(sensor_number){
-
       case 2:
         syncronizer_for_two_ = new message_filters::Synchronizer<MySyncPolicy2>(MySyncPolicy2(queue_size_), *filtered_subscribers_.at(0),
                                                                                                *filtered_subscribers_.at(1));
@@ -271,7 +271,6 @@ namespace collision_detector_diagnoser
       array_subcribers_[i].shutdown();
     }//endFor
     array_subcribers_.clear();
-
   }
 
   void CollisionDetectorDiagnoser::resetFilteredPublishers(){
@@ -279,7 +278,6 @@ namespace collision_detector_diagnoser
     for(int i=0; i< filtered_subscribers_.size(); i++){
       filtered_subscribers_.at(i)->unsubscribe();// unsubscribe all filtered messages
     }//endFor
-
     filtered_subscribers_.clear();
   }
 
