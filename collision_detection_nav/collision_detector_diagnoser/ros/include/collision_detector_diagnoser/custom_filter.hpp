@@ -44,8 +44,8 @@ namespace collision_detector_diagnoser
 
     void registerCallback(int input_number){
       for (int i=0; i != input_number; ++i){
-        my_subscriber_ = nh_.subscribe<fusion_msgs::sensorFusionMsg> ("/collisions_" +std::to_string(i), 10,boost::bind(&CustomMessageFilter::subscribeCB,this, _1, i));
-      }
+        my_subscriber_ = nh_.subscribe<fusion_msgs::sensorFusionMsg> ("/collisions_" +std::to_string(i), 10,boost::bind(&CustomMessageFilter::subscribeCB,_1, i,this),this);
+        }
 
     }
 
