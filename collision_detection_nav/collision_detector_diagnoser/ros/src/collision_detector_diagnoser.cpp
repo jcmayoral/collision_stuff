@@ -38,7 +38,7 @@ namespace collision_detector_diagnoser
     speak_pub_ = private_n.advertise<std_msgs::String>("/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = private_n.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
-    collision_pub_ = private_n.advertise<fusion_msgs::sensorFusionMsg>("overall_collision", 1);
+    collision_pub_ = private_n.advertise<fusion_msgs::monitorStatusMsg>("overall_collision", 1);
 
     //initialize();
     ROS_INFO("Constructor CollisionDetectorDiagnoser");
@@ -62,7 +62,7 @@ namespace collision_detector_diagnoser
     speak_pub_ = nh.advertise<std_msgs::String>("/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = nh.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
-    collision_pub_ = nh.advertise<fusion_msgs::sensorFusionMsg>("overall_collision", 1);
+    collision_pub_ = nh.advertise<fusion_msgs::monitorStatusMsg>("overall_collision", 1);
 
   }
 
@@ -125,14 +125,15 @@ namespace collision_detector_diagnoser
   void CollisionDetectorDiagnoser::timeoutReset(){
     while(is_custom_filter_requested_){
        //std::this_thread::sleep_for(std::chrono::seconds<double>(getTimeOut()));
+       resetCollisionFlags(is_custom_filter_requested_);
        auto start = std::chrono::high_resolution_clock::now();
        std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
        auto end = std::chrono::high_resolution_clock::now();
        std::chrono::duration<double, std::milli> elapsed = end-start;
        ROS_DEBUG("RESET");
-       resetCollisionFlags(is_custom_filter_requested_);
     }
   }
+
   void CollisionDetectorDiagnoser::plotOrientation(list<fusion_msgs::sensorFusionMsg> v){
     geometry_msgs::PoseArray array_msg;
     array_msg.header.frame_id = "base_link";
@@ -145,8 +146,6 @@ namespace collision_detector_diagnoser
 
     orientation_pub_.publish(array_msg);
   }
-
-
 
   void CollisionDetectorDiagnoser::twoSensorsCallBack(const fusion_msgs::sensorFusionMsgConstPtr& detector_1,
                                                       const fusion_msgs::sensorFusionMsgConstPtr& detector_2){
@@ -392,17 +391,16 @@ namespace collision_detector_diagnoser
   {
 
     if (debug_mode_){
-      collision_output_msg_.header.stamp = ros::Time::now();
-      collision_output_msg_.header.frame_id = "base_link";
-      collision_output_msg_.sensor_id.data = "SF";
+      status_output_msg_.header.stamp = ros::Time::now();
+      status_output_msg_.header.frame_id = "base_link";
 
       if (isCollisionDetected){
-        collision_output_msg_.msg = fusion_msgs::sensorFusionMsg::ERROR;
+        status_output_msg_.msg = fusion_msgs::sensorFusionMsg::ERROR;
       }
       else{
-        collision_output_msg_.msg = fusion_msgs::sensorFusionMsg::OK;
+        status_output_msg_.msg = fusion_msgs::sensorFusionMsg::OK;
       }
-      collision_pub_.publish(collision_output_msg_);
+      collision_pub_.publish(status_output_msg_);
     }
 
     return isCollisionDetected;

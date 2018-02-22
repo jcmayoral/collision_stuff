@@ -9,6 +9,8 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <geometry_msgs/AccelStamped.h>
 #include <fusion_msgs/sensorFusionMsg.h>
+#include <fusion_msgs/monitorStatusMsg.h>
+
 #include <kinetic_energy_monitor/KineticEnergyMonitorMsg.h>
 #include <footprint_checker/CollisionCheckerMsg.h>
 #include <dynamic_reconfigure/server.h>
@@ -119,7 +121,7 @@ namespace collision_detector_diagnoser
       ros::Publisher speak_pub_;
 
       ros::Publisher collision_pub_;
-      fusion_msgs::sensorFusionMsg collision_output_msg_;
+      fusion_msgs::monitorStatusMsg status_output_msg_;
 
       std::vector<message_filters::Subscriber<fusion_msgs::sensorFusionMsg>*> filtered_subscribers_;
 
