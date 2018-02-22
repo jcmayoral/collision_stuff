@@ -12,14 +12,21 @@ using namespace message_filters;
 namespace collision_detector_diagnoser
 {
 
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(4), filter_(false), percentage_threshold_(0.5), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10), is_custom_filter_requested_(false)
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(): isCollisionDetected(false), time_of_collision_(),
+                                                            mode_(0), sensor_number_(4), filter_(false),
+                                                            percentage_threshold_(0.5), age_penalty_(-1.0),
+                                                            max_interval_(0.0), queue_size_(10),
+                                                            is_custom_filter_requested_(false), debug_mode_(false)
   {
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
     fault_.cause_ = FaultTopology::UNKNOWN;
     ROS_INFO("Default Constructor CollisionDetectorDiagnoser");
   }
 
-  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(sensor_number), filter_(false), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10), is_custom_filter_requested_(false)
+  CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(),
+                                                                             mode_(0), sensor_number_(sensor_number), filter_(false),
+                                                                            age_penalty_(-1.0), max_interval_(0.0), queue_size_(10),
+                                                                            is_custom_filter_requested_(false), debug_mode_(false)
   {
     //Used In teh Node
     setDynamicReconfigureServer();
@@ -77,6 +84,7 @@ namespace collision_detector_diagnoser
     max_interval_ = std::numeric_limits< int32_t >::max() * config.max_interval;
     queue_size_ = config.queue_size;
     is_custom_filter_requested_ = config.custom_filter;
+    debug_mode_ = config.request_debug_mode;
     setTimeOut(config.custom_timeout);
     initialize(sensor_number_);
   }
@@ -383,18 +391,20 @@ namespace collision_detector_diagnoser
   bool CollisionDetectorDiagnoser::detectFault()
   {
 
-    collision_output_msg_.header.stamp = ros::Time::now();
-    collision_output_msg_.header.frame_id = "base_linnk";
-    collision_output_msg_.sensor_id.data = "SF";
+    if (debug_mode_){
+      collision_output_msg_.header.stamp = ros::Time::now();
+      collision_output_msg_.header.frame_id = "base_link";
+      collision_output_msg_.sensor_id.data = "SF";
 
-    if (isCollisionDetected){
-      collision_output_msg_.msg = fusion_msgs::sensorFusionMsg::ERROR;
-    }
-    else{
-      collision_output_msg_.msg = fusion_msgs::sensorFusionMsg::OK;
+      if (isCollisionDetected){
+        collision_output_msg_.msg = fusion_msgs::sensorFusionMsg::ERROR;
+      }
+      else{
+        collision_output_msg_.msg = fusion_msgs::sensorFusionMsg::OK;
+      }
+      collision_pub_.publish(collision_output_msg_);
     }
 
-    collision_pub_.publish(collision_output_msg_);
     return isCollisionDetected;
   }
 

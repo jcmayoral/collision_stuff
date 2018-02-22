@@ -157,6 +157,7 @@ namespace collision_detector_diagnoser
       double max_interval_;
 
       bool is_custom_filter_requested_;
+      bool debug_mode_;
   };
 
 }  // namespace collision_detector_diagnoser
