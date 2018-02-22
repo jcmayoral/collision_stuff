@@ -76,6 +76,9 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::dyn_reconfigureCB(collision_detector_diagnoser::diagnoserConfig &config, uint32_t level){
     //<ROS_INFO_STREAM(config.mode);
+    mutex mu;
+    mu.lock();
+    ROS_INFO("Configuration Update Required");
     mode_ = config.mode;
     filter_ = config.allow_filter;
     percentage_threshold_ = config.percentage_threshold;
@@ -87,6 +90,8 @@ namespace collision_detector_diagnoser
     debug_mode_ = config.request_debug_mode;
     setTimeOut(config.custom_timeout);
     initialize(sensor_number_);
+    ROS_INFO("Configuration Update Complete");
+    mu.unlock();
   }
 
 
@@ -110,10 +115,11 @@ namespace collision_detector_diagnoser
         }
       }
 
-      if(current_collisions >= int(getCustomThrehold()* getInputNumber())){
+      if(current_collisions >= ceil(getCustomThrehold()* getInputNumber())){
         ROS_ERROR_STREAM("CUSTOM COLLISION FOUND");
 
         isCollisionDetected = true;
+        ros::Duration(getTimeOut()).sleep();
       }
       else{
         isCollisionDetected = false;
@@ -124,12 +130,9 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::timeoutReset(){
     while(is_custom_filter_requested_){
-       //std::this_thread::sleep_for(std::chrono::seconds<double>(getTimeOut()));
        resetCollisionFlags(is_custom_filter_requested_);
-       auto start = std::chrono::high_resolution_clock::now();
-       std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
-       auto end = std::chrono::high_resolution_clock::now();
-       std::chrono::duration<double, std::milli> elapsed = end-start;
+       ros::Duration(getTimeOut()).sleep();
+       //std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
        ROS_DEBUG("RESET");
     }
   }
@@ -312,7 +315,9 @@ namespace collision_detector_diagnoser
     for (int i = 0; i< array_subcribers_.size();i++){//remove normal subscribers
       array_subcribers_[i].shutdown();
     }//endFor
-    array_subcribers_.clear();
+
+    array_subcribers_.erase(array_subcribers_.begin(), array_subcribers_.end());
+
   }
 
   void CollisionDetectorDiagnoser::resetFilteredPublishers(){
@@ -320,7 +325,7 @@ namespace collision_detector_diagnoser
     for(int i=0; i< filtered_subscribers_.size(); i++){
       filtered_subscribers_.at(i)->unsubscribe();// unsubscribe all filtered messages
     }//endFor
-    filtered_subscribers_.clear();
+    filtered_subscribers_.erase(filtered_subscribers_.begin(), filtered_subscribers_.end());
   }
 
   void CollisionDetectorDiagnoser::setUnfilteredPublishers(int sensor_number, ros::NodeHandle nh){
@@ -350,11 +355,12 @@ namespace collision_detector_diagnoser
     stop(); //Stop CustomFilter
 
     if (is_custom_filter_requested_){
-      ROS_INFO("Custom Filtering Requested");
+      ROS_DEBUG("Custom Filtering Requested");
       resetUnFilteredPublishers();
       unregisterCallbackForSyncronizers();
+      ROS_DEBUG("Starting Threads");
       start(sensor_number_);
-      ROS_INFO("Custom Filtering Ready");
+      ROS_DEBUG("Custom Filtering Ready");
 
     }
     else {

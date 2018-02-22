@@ -20,6 +20,7 @@
 #include <list>
 #include <chrono>
 #include <collision_detector_diagnoser/custom_filter.hpp>
+#include <math.h>
 
 namespace collision_detector_diagnoser
 {

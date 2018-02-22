@@ -15,7 +15,8 @@ namespace collision_detector_diagnoser
 
     void stop(){
       removeSubscribers();
-      delete [] collision_flags_;
+      resetCollisionFlags(false);
+      //delete [] collision_flags_;
     }
 
     void removeSubscribers(){
