@@ -118,6 +118,9 @@ namespace collision_detector_diagnoser
 
       ros::Publisher speak_pub_;
 
+      ros::Publisher collision_pub_;
+      fusion_msgs::sensorFusionMsg collision_output_msg_;
+
       std::vector<message_filters::Subscriber<fusion_msgs::sensorFusionMsg>*> filtered_subscribers_;
 
       message_filters::Synchronizer<MySyncPolicy2>*syncronizer_for_two_;

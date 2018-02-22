@@ -22,6 +22,7 @@ namespace collision_detector_diagnoser
   CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(), mode_(0), sensor_number_(sensor_number), filter_(false), age_penalty_(-1.0), max_interval_(0.0), queue_size_(10), is_custom_filter_requested_(false)
   {
     //Used In teh Node
+    setDynamicReconfigureServer();
     ros::NodeHandle private_n("~");
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
     fault_.cause_ = FaultTopology::UNKNOWN;
@@ -30,7 +31,7 @@ namespace collision_detector_diagnoser
     speak_pub_ = private_n.advertise<std_msgs::String>("/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = private_n.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
-    setDynamicReconfigureServer();
+    collision_pub_ = private_n.advertise<fusion_msgs::sensorFusionMsg>("overall_collision", 1);
 
     //initialize();
     ROS_INFO("Constructor CollisionDetectorDiagnoser");
@@ -54,6 +55,7 @@ namespace collision_detector_diagnoser
     speak_pub_ = nh.advertise<std_msgs::String>("/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = nh.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
+    collision_pub_ = nh.advertise<fusion_msgs::sensorFusionMsg>("overall_collision", 1);
 
   }
 
@@ -380,10 +382,26 @@ namespace collision_detector_diagnoser
 
   bool CollisionDetectorDiagnoser::detectFault()
   {
+
+    collision_output_msg_.header.stamp = ros::Time::now();
+    collision_output_msg_.header.frame_id = "base_linnk";
+    collision_output_msg_.sensor_id.data = "SF";
+
+    if (isCollisionDetected){
+      collision_output_msg_.msg = fusion_msgs::sensorFusionMsg::ERROR;
+    }
+    else{
+      collision_output_msg_.msg = fusion_msgs::sensorFusionMsg::OK;
+    }
+
+    collision_pub_.publish(collision_output_msg_);
     return isCollisionDetected;
   }
 
   void CollisionDetectorDiagnoser::isolateFault(){
+
+    //collision_output_msg_.header = time_of_collision_; //TODO
+
 
     footprint_checker::CollisionCheckerMsg srv;
 
