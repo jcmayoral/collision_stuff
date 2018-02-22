@@ -119,7 +119,6 @@ namespace collision_detector_diagnoser
         ROS_ERROR_STREAM("CUSTOM COLLISION FOUND");
 
         isCollisionDetected = true;
-        ros::Duration(getTimeOut()).sleep();
       }
       else{
         isCollisionDetected = false;
@@ -130,10 +129,10 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::timeoutReset(){
     while(is_custom_filter_requested_){
-       resetCollisionFlags(is_custom_filter_requested_);
-       ros::Duration(getTimeOut()).sleep();
-       //std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
-       ROS_DEBUG("RESET");
+       resetCollisionFlags();
+       //ros::Duration(getTimeOut()).sleep();
+       std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
+       ROS_INFO("RESET");
     }
   }
 
@@ -406,7 +405,7 @@ namespace collision_detector_diagnoser
       else{
         status_output_msg_.msg = fusion_msgs::sensorFusionMsg::OK;
       }
-      collision_pub_.publish(status_output_msg_);
+      collision_pub_.publish(status_output_msg_); //TODO
     }
 
     return isCollisionDetected;
