@@ -117,8 +117,8 @@ namespace collision_detector_diagnoser
 
       if(current_collisions >= ceil(getCustomThrehold()* getInputNumber())){
         ROS_ERROR_STREAM("CUSTOM COLLISION FOUND");
-
         isCollisionDetected = true;
+
       }
       else{
         isCollisionDetected = false;
@@ -132,7 +132,7 @@ namespace collision_detector_diagnoser
        resetCollisionFlags();
        //ros::Duration(getTimeOut()).sleep();
        std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
-       ROS_INFO("RESET");
+       //ROS_INFO("RESET");
     }
   }
 
