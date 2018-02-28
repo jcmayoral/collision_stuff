@@ -9,9 +9,11 @@ class SensorFusionApproach {
   public:
     virtual bool detect(list<fusion_msgs::sensorFusionMsg> v) {
       ROS_DEBUG("Default");
+      collision_observers_ids_.clear();
       for (std::list<fusion_msgs::sensorFusionMsg>::iterator it=v.begin(); it != v.end(); ++it){
         if(it->msg == fusion_msgs::sensorFusionMsg::ERROR){
           ROS_WARN_STREAM("Collision DETECTED on " << it->sensor_id);
+          collision_observers_ids_.push_back(it->sensor_id.data);
           return true;
         }
       }
@@ -21,8 +23,14 @@ class SensorFusionApproach {
       ROS_DEBUG("Threshold update");
       threshold = thr;
     }
+
+    const vector<string>& getCollisionObservers() const{
+      return collision_observers_ids_;
+    };
+
   protected:
     double threshold = 0.5; //TODO
+    std::vector<string> collision_observers_ids_;
 };
 
 class VotingApproach : public SensorFusionApproach {
@@ -30,8 +38,10 @@ class VotingApproach : public SensorFusionApproach {
       bool detect(list<fusion_msgs::sensorFusionMsg> v){
         ROS_DEBUG("Consensus");
         int counter = 0;
+        collision_observers_ids_.clear();
         for (std::list<fusion_msgs::sensorFusionMsg>::iterator it=v.begin(); it != v.end(); ++it){
           if(it->msg == fusion_msgs::sensorFusionMsg::ERROR){
+            collision_observers_ids_.push_back(it->sensor_id.data);
             ROS_WARN_STREAM("Collision DETECTED on " << it->sensor_id);
             counter ++;
           }
@@ -52,9 +62,11 @@ class WeightedApproach : public SensorFusionApproach {
         ROS_DEBUG("Weighted");
         double max_value = 0; //TODO
         double count = 0;
+        collision_observers_ids_.clear();
 
         for (std::list<fusion_msgs::sensorFusionMsg>::iterator it=v.begin(); it != v.end(); ++it){
           max_value+= fusion_msgs::sensorFusionMsg::ERROR * it->weight;
+          collision_observers_ids_.push_back(it->sensor_id.data);
           count += it->msg * it->weight;
         }
 

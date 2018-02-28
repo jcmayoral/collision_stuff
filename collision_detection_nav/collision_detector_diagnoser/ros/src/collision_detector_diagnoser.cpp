@@ -130,8 +130,8 @@ namespace collision_detector_diagnoser
   void CollisionDetectorDiagnoser::timeoutReset(){
     while(is_custom_filter_requested_){
        resetCollisionFlags();
-       //ros::Duration(getTimeOut()).sleep();
-       std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
+       ros::Duration(getTimeOut()).sleep();
+       //std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
        //ROS_INFO("RESET");
     }
   }
@@ -284,11 +284,11 @@ namespace collision_detector_diagnoser
                                                                                                *filtered_subscribers_.at(1),
                                                                                                *filtered_subscribers_.at(2),
                                                                                                *filtered_subscribers_.at(3));
-        syncronizer_for_four_->setAgePenalty(age_penalty_);
         //syncronizer_for_four_->setInterMessageLowerBound(lower_bound_);
         syncronizer_for_four_->setMaxIntervalDuration(ros::Duration(max_interval_));
 
         main_connection = syncronizer_for_four_->registerCallback(boost::bind(&CollisionDetectorDiagnoser::fourSensorsCallBack,this,_1, _2,_3,_4));
+        syncronizer_for_four_->setAgePenalty(age_penalty_);
         break;
       case 5:
         syncronizer_for_five_ = new message_filters::Synchronizer<MySyncPolicy5>(MySyncPolicy5(queue_size_), *filtered_subscribers_.at(0),
@@ -401,6 +401,7 @@ namespace collision_detector_diagnoser
 
       if (isCollisionDetected){
         status_output_msg_.msg = fusion_msgs::sensorFusionMsg::ERROR;
+        status_output_msg_.observers_ids = fusion_approach_->getCollisionObservers();
       }
       else{
         status_output_msg_.msg = fusion_msgs::sensorFusionMsg::OK;
