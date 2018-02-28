@@ -93,12 +93,14 @@ namespace collision_detector_diagnoser
       mu.lock();
       if (detector->msg == 2){
         collision_flags_[index] = true;
-        custom_collision_observers_ids_.push_back(detector->sensor_id.data);
+        string id(detector->sensor_id.data);
+        custom_collision_observers_ids_.push_back(id);
       }
       mu.unlock();
     }
 
     void clearCustomCollisionObserversIDS(){
+      ROS_DEBUG_STREAM("Deleting " << custom_collision_observers_ids_.size());
       custom_collision_observers_ids_.clear();
     }
 

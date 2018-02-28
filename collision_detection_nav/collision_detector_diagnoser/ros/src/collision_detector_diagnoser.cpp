@@ -109,16 +109,15 @@ namespace collision_detector_diagnoser
 
       for( unsigned int a = 0; a < getInputNumber(); a = a + 1 ){
 
-        if (getCollisionFlag(a)){
+        if (CustomMessageFilter::getCollisionFlag(a)){
           ROS_WARN_STREAM("Collision Found in topic number " << a);
           current_collisions++;
         }
       }
 
       if(current_collisions >= ceil(getCustomThrehold()* getInputNumber())){
-        ROS_ERROR_STREAM("CUSTOM COLLISION FOUND");
+        ROS_ERROR_STREAM("CUSTOM COLLISION FOUND in "<< current_collisions <<" observers");
         isCollisionDetected = true;
-
       }
       else{
         isCollisionDetected = false;
@@ -129,9 +128,9 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::timeoutReset(){
     while(is_custom_filter_requested_){
-       resetCollisionFlags();
-       clearCustomCollisionObserversIDS();
-       ros::Duration(getTimeOut()).sleep();
+       CustomMessageFilter::resetCollisionFlags();
+       CustomMessageFilter::clearCustomCollisionObserversIDS();
+       ros::Duration(CustomMessageFilter::getTimeOut()/1000).sleep();
        //std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
        //ROS_INFO("RESET");
     }
