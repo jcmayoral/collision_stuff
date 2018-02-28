@@ -130,6 +130,7 @@ namespace collision_detector_diagnoser
   void CollisionDetectorDiagnoser::timeoutReset(){
     while(is_custom_filter_requested_){
        resetCollisionFlags();
+       clearCustomCollisionObserversIDS();
        ros::Duration(getTimeOut()).sleep();
        //std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
        //ROS_INFO("RESET");
@@ -400,13 +401,14 @@ namespace collision_detector_diagnoser
       status_output_msg_.header.frame_id = "base_link";
 
       if (isCollisionDetected){
-        status_output_msg_.msg = fusion_msgs::sensorFusionMsg::ERROR;
-        status_output_msg_.observers_ids = fusion_approach_->getCollisionObservers();
+        if (is_custom_filter_requested_){
+          status_output_msg_.observers_ids = getCustomCollisionObservers();
+        }
+        else{
+          status_output_msg_.observers_ids = fusion_approach_->getCollisionObservers();
+        }
+        collision_pub_.publish(status_output_msg_); //TODO
       }
-      else{
-        status_output_msg_.msg = fusion_msgs::sensorFusionMsg::OK;
-      }
-      collision_pub_.publish(status_output_msg_); //TODO
     }
 
     return isCollisionDetected;

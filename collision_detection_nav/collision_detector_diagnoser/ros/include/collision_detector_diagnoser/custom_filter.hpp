@@ -93,14 +93,25 @@ namespace collision_detector_diagnoser
       mu.lock();
       if (detector->msg == 2){
         collision_flags_[index] = true;
+        custom_collision_observers_ids_.push_back(detector->sensor_id.data);
       }
       mu.unlock();
     }
+
+    void clearCustomCollisionObserversIDS(){
+      custom_collision_observers_ids_.clear();
+    }
+
+    const vector<string>& getCustomCollisionObservers() const{
+      return custom_collision_observers_ids_;
+    };
 
   private:
     int timeout_;
     int input_number_;
     std::vector<ros::Subscriber> my_subscribers_;
+    std::vector<string> custom_collision_observers_ids_;
+
     ros::NodeHandle nh_;
     bool *collision_flags_;
     std::thread *monitoring_thread_;
