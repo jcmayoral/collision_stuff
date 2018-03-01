@@ -42,12 +42,15 @@ namespace collision_detector_diagnoser
     void resetCollisionFlags(){
       for (int b = 0; b < input_number_;++b){
         collision_flags_[b] = false;
+        flags_ids_[b] = false;
       }
     }
 
     void start(int observers_number){
       input_number_ = observers_number;
       collision_flags_ = new bool[observers_number];
+      flags_ids_ = new bool[observers_number];
+
       resetCollisionFlags();
       registerCallback(observers_number);
       monitoring_thread_ = new std::thread(&CustomMessageFilter::listenTime,this);
@@ -94,7 +97,11 @@ namespace collision_detector_diagnoser
       if (detector->msg == 2){
         collision_flags_[index] = true;
         string id(detector->sensor_id.data);
-        custom_collision_observers_ids_.push_back(id);
+
+        if (!flags_ids_[index]){
+          custom_collision_observers_ids_.push_back(id);
+          flags_ids_[index] = true;
+        }
       }
       mu.unlock();
     }
@@ -116,6 +123,8 @@ namespace collision_detector_diagnoser
 
     ros::NodeHandle nh_;
     bool *collision_flags_;
+    bool *flags_ids_;
+
     std::thread *monitoring_thread_;
     std::thread *timeout_reset_thread_;
     double custom_threshold_;
