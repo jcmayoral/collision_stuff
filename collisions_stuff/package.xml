@@ -12,6 +12,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>simple_costmap_layer</run_depend>
+  <run_depend>collision_costmap_layer</run_depend>
   <run_depend>simple_recovery_behavior</run_depend>
   <run_depend>simple_collision_detector</run_depend>
   <run_depend>simple_collision_recovery</run_depend>
