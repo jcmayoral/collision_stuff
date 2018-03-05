@@ -1,0 +1,5 @@
+<library path="lib/libcollision_costmap_layer">
+  <class type="collision_costmap_layer::StaticRecoveryCostmapLayer" base_class_type="costmap_2d::Layer">
+    <description>Static Recovery CostMap Layer</description>
+  </class>
+</library>
