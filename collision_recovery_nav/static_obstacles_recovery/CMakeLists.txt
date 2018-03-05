@@ -27,10 +27,10 @@ catkin_package(
         std_srvs
 )
 
-add_library(mislocalization_collision_recovery ros/src/static_obstacles_recovery.cpp)
+add_library(static_obstacles_recovery ros/src/static_obstacles_recovery.cpp)
 
 add_executable(static_obstacles_recovery_node
-  ros/script/static_obstacles_recovery.cpp
+  ros/script/static_obstacles_recovery_node.cpp
 )
 
 target_link_libraries(static_obstacles_recovery ${catkin_LIBRARIES})

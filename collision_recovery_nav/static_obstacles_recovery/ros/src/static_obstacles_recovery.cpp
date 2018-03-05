@@ -1,4 +1,4 @@
-#include "mislocalization_collision_recovery/mislocalization_collision_recovery.h"
+#include "static_obstacles_recovery/static_obstacles_recovery.h"
 #include <pluginlib/class_list_macros.h>
 
 // register this class as a recovery behavior plugin
@@ -12,7 +12,7 @@ namespace static_obstacles_recovery
 
   StaticObstaclesCollisionRecovery::StaticObstaclesCollisionRecovery(): amcl_pose_(), is_pose_received_(false), threshold_(4.0), max_iterations_(100)
   {
-    fault_cause_ = FaultTopology::MISLOCALIZATION;
+    fault_cause_ = FaultTopology::STATIC_OBSTACLE;
     ros::NodeHandle n;
     global_client_ = n.serviceClient<std_srvs::Empty>("/global_localization");
     amcl_client_ = n.serviceClient<std_srvs::Empty>("/request_nomotion_update");
@@ -89,4 +89,4 @@ namespace static_obstacles_recovery
     return true;
   }
 
-}  // namespace MisLocalization_collision_recovery
+}  // namespace static_obstacles_recovery

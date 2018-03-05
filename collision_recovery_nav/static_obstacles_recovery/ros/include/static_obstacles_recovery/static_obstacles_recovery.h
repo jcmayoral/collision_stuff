@@ -1,5 +1,5 @@
-#ifndef SIMPLE_COLLISION_RECOVERY_H
-#define SIMPLE_COLLISION_RECOVERY_H
+#ifndef STATIC_OBSTACLES_RECOVERY_H
+#define STATIC_OBSTACLES_RECOVERY_H
 
 #include <math.h>
 #include <ros/ros.h>
@@ -18,12 +18,12 @@ namespace static_obstacles_recovery
       /**
        * @brief Constructor
        */
-      MisLocalizationCollisionRecovery();
+      StaticObstaclesCollisionRecovery();
 
       /**
        * @brief Destructor
        */
-      ~MisLocalizationCollisionRecovery();
+      ~StaticObstaclesCollisionRecovery();
 
       /**
        * @brief Initializes plugin
@@ -51,4 +51,4 @@ namespace static_obstacles_recovery
 
 }  // namespace mislocalization_collision_recovery
 
-#endif  // MISLOCALIZATION_COLLISION_RECOVERY_H
+#endif  // STATIC_OBSTACLES_RECOVERY_H
