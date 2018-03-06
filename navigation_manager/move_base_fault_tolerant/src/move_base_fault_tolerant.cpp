@@ -419,9 +419,6 @@ namespace move_base_fault_tolerant {
       {
         //Following Clearing State "template"
         //Disable Planner_thread
-        boost::unique_lock<boost::mutex> lock(planner_mutex_);
-        setRunPlanner(false);
-        lock.unlock();
 
         ROS_ERROR("move_base in state RECOVERING");
         //FaultTolerantMoveBase::recoveryFault();
@@ -433,23 +430,28 @@ namespace move_base_fault_tolerant {
         for (i; i<fault_recovery_behaviors_.size(); i++){
           if (fd_->getFault().cause_ == fault_recovery_behaviors_[i]->getType()){
             result = fault_recovery_behaviors_[i]->runFaultBehavior();
-            ROS_INFO("Fault Recovery Running");
-            i = fault_recovery_behaviors_.size();
+            ROS_INFO("Fault Recovery Finished");
+            i = fault_recovery_behaviors_.size() + 1;
           }
         }
 
-        if (i == fault_recovery_behaviors_.size())
+        if (i == fault_recovery_behaviors_.size()){
              ROS_WARN("Not Fault Recovery Behavior Found");
              result = false;
+        }
 
 	      if (!result){
+          boost::unique_lock<boost::mutex> lock(planner_mutex_);
+          setRunPlanner(false);
+          lock.unlock();
+          ROS_ERROR("Recovery Strategy failed");
           as_->setAborted(move_base_msgs::MoveBaseResult(), "Collision Recovery Failure.");
           resetState();
           return true;
         }
         else {
           ROS_INFO("Collision Recovery Sucess");
-          setRunPlanner(true);
+          //setRunPlanner(true);
           setState(MoveBaseState::CONTROLLING);
         }
         //return true;
