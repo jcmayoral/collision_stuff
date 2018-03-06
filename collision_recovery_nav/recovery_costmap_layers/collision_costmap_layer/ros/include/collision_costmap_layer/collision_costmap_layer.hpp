@@ -19,11 +19,19 @@ public:
                              double* max_y);
   virtual void updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i, int max_j);
 
+  void pointCB(geometry_msgs::PointStamped msg);
+
 private:
   void reconfigureCB(costmap_2d::GenericPluginConfig &config, uint32_t level);
 
-  double mark_x_, mark_y_;
+  std::vector<double> mark_x_;
+  std::vector<double> mark_y_;
+  bool is_pose_received_;
   dynamic_reconfigure::Server<costmap_2d::GenericPluginConfig> *dsrv_;
+  ros::Subscriber point_sub_;
+  tf::TransformListener listener_;
+
+
 };
 }
 #endif
