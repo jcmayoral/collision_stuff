@@ -1,0 +1,7 @@
+<library path="lib/libdynamic_obstacles_recovery">
+  <class name="dynamic_obstacles_recovery/DynamicObstaclesCollisionRecovery" type="dynamic_obstacles_recovery::DynamicObstaclesCollisionRecovery" base_class_type="fault_core::FaultRecoveryBehavior">
+    <description>
+      A collision recovery behavior for Static ObstaclesCollisionRecovery
+    </description>
+  </class>
+</library>
