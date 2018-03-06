@@ -162,6 +162,8 @@ namespace collision_detector_diagnoser
       bool is_custom_filter_requested_;
       bool debug_mode_;
 
+      tf::Quaternion mean_collision_orientation_;
+
   };
 
 }  // namespace collision_detector_diagnoser

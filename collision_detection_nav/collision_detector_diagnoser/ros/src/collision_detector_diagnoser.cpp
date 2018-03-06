@@ -16,7 +16,8 @@ namespace collision_detector_diagnoser
                                                             mode_(0), sensor_number_(4), filter_(false),
                                                             percentage_threshold_(0.5), age_penalty_(-1.0),
                                                             max_interval_(0.0), queue_size_(10),
-                                                            is_custom_filter_requested_(false), debug_mode_(false)
+                                                            is_custom_filter_requested_(false), debug_mode_(false),
+                                                            mean_collision_orientation_()
   {
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
     fault_.cause_ = FaultTopology::UNKNOWN;
@@ -26,7 +27,8 @@ namespace collision_detector_diagnoser
   CollisionDetectorDiagnoser::CollisionDetectorDiagnoser(int sensor_number): isCollisionDetected(false), time_of_collision_(),
                                                                              mode_(0), sensor_number_(sensor_number), filter_(false),
                                                                             age_penalty_(-1.0), max_interval_(0.0), queue_size_(10),
-                                                                            is_custom_filter_requested_(false), debug_mode_(false)
+                                                                            is_custom_filter_requested_(false), debug_mode_(false),
+                                                                            mean_collision_orientation_()
   {
     //Used In teh Node
     setDynamicReconfigureServer();
@@ -245,7 +247,7 @@ namespace collision_detector_diagnoser
       ROS_INFO_STREAM ("Collision detected by " << msg.sensor_id);
       time_of_collision_ = msg.header;
       isCollisionDetected = true;
-
+      mean_collision_orientation_ = tf::createQuaternionFromYaw(msg.angle);
     }
     else{
       isCollisionDetected = false;
@@ -438,23 +440,24 @@ namespace collision_detector_diagnoser
       ROS_INFO_STREAM("Strength: " << kinetic_srv.response.energy_lost);
     }
 
-    geometry_msgs::Quaternion measured_collision;
-    measured_collision.w = 1;
-    orientation_srv.request.collision_orientation = measured_collision;
+     tf::quaternionTFToMsg(mean_collision_orientation_, orientation_srv.request.collision_orientation);
 
     if(orientations_srv_client_.call(orientation_srv)){
       ROS_INFO("Orientations Computed Correctly");
-      fault_.cause_ = FaultTopology::STATIC_OBSTACLE;
-      ROS_ERROR_ONCE("Collision FOUND");
-
+      if (orientation_srv.response.is_static_collision){
+        fault_.cause_ = FaultTopology::STATIC_OBSTACLE;
+        ROS_ERROR("STATIC Collision FOUND");
+      }
+      else{
+        fault_.cause_ = FaultTopology::STATIC_OBSTACLE;
+        ROS_ERROR("DYNAMIC Collision FOUND");
+      }
     }
     else{
-      fault_.cause_ = FaultTopology::DYNAMIC_OBSTACLE;
-      ROS_ERROR_ONCE("Collision FOUND");
-
       ROS_WARN("Error in orientations Server");
+      fault_.cause_ = FaultTopology::UNKNOWN;
+      ROS_ERROR("UNKNOWN Collision FOUND");
     }
-
 
     //fault_.cause_ = FaultTopology::MISLOCALIZATION;
     isCollisionDetected = false;
