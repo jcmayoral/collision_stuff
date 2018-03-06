@@ -36,13 +36,13 @@ namespace dynamic_obstacles_recovery
 
     ROS_INFO("Running Dyanmic Recovery");
     //clear_costmaps
-    if (ros::service::waitForService ("/move_base/clear_costmaps", 10)) {
+    /*if (ros::service::waitForService ("/move_base/clear_costmaps", 10)) {
       if(!clear_costmaps_client_.call(s)) {
         ROS_ERROR ("Error clearing costmap service");
 	      return false;
       }
     }
-
+    */
     return true;
   }
 

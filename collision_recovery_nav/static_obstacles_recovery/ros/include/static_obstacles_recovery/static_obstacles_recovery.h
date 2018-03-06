@@ -34,19 +34,11 @@ namespace static_obstacles_recovery
        * @brief Executes the car maneuver recovery behavior
        */
       bool runFaultBehavior();
-      void amclCB(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg);
 
 
     private:
-      geometry_msgs::PoseWithCovarianceStamped amcl_pose_;
-      ros::ServiceClient global_client_;
-      ros::Subscriber amcl_sub_;
-      ros::ServiceClient amcl_client_;
       ros::ServiceClient clear_costmaps_client_;
-      bool is_pose_received_;
-      double threshold_;
-      double max_iterations_;
-
+  
   };
 
 }  // namespace mislocalization_collision_recovery
