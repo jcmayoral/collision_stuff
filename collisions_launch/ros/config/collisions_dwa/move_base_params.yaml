@@ -43,3 +43,5 @@ fault_recovery_behaviors:
     type: 'mislocalization_collision_recovery/MisLocalizationCollisionRecovery'
   - name: 'static_obstacles_recovery'
     type: 'static_obstacles_recovery/StaticObstaclesCollisionRecovery'
+  - name: 'dynamic_obstacles_recovery'
+    type: 'dynamic_obstacles_recovery/DynamicObstaclesCollisionRecovery'
