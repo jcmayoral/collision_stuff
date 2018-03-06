@@ -6,8 +6,8 @@ namespace collision_detector_diagnoser
 {
   class CustomMessageFilter   {
     public:
-    CustomMessageFilter(){
-
+    CustomMessageFilter(): input_number_(0), my_subscribers_(),custom_collision_observers_ids_(){
+      ROS_INFO("CustomMessageFilter Constructor");
     };
     ~CustomMessageFilter(){
 
@@ -40,6 +40,8 @@ namespace collision_detector_diagnoser
     }
 
     void resetCollisionFlags(){
+      std::cout << "RCF";
+
       for (int b = 0; b < input_number_;++b){
         collision_flags_[b] = false;
         flags_ids_[b] = false;

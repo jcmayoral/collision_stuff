@@ -55,7 +55,7 @@ namespace collision_detector_diagnoser
     nh.param("sensor_fusion/mode", mode_);
     nh.param("sensor_fusion/filter", filter_);
     ROS_DEBUG_STREAM(" Selected mode" << mode_);
-    initialize(sensor_number_);
+    //initialize(sensor_number_);
 
     strength_srv_client_ = nh.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
     orientations_srv_client_ = nh.serviceClient<footprint_checker::CollisionCheckerMsg>("/collision_checker");
@@ -89,6 +89,7 @@ namespace collision_detector_diagnoser
     is_custom_filter_requested_ = config.custom_filter;
     debug_mode_ = config.request_debug_mode;
     setTimeOut(config.custom_timeout);
+
     initialize(sensor_number_);
     ROS_INFO("Configuration Update Complete");
     mu.unlock();
@@ -352,6 +353,7 @@ namespace collision_detector_diagnoser
     ROS_DEBUG_STREAM("Method" << std::to_string(mode_) << " Selected");
 
     stop(); //Stop CustomFilter
+    ROS_INFO("ASTO");
 
     if (is_custom_filter_requested_){
       ROS_DEBUG("Custom Filtering Requested");
@@ -416,39 +418,45 @@ namespace collision_detector_diagnoser
   void CollisionDetectorDiagnoser::isolateFault(){
 
     //collision_output_msg_.header = time_of_collision_; //TODO
-
-
-    footprint_checker::CollisionCheckerMsg srv;
-
     std_msgs::String msg;
     msg.data ="ouch";
     speak_pub_.publish(msg);
-
-
-    if(orientations_srv_client_.call(srv)){
-      ROS_INFO("Orientations Computed Correctly");
-    }
-    else{
-      ROS_WARN("Error in orientations Server");
-    }
-
     fault_.type_ = FaultTopology::COLLISION;
     ROS_INFO("Isolating Platform Collision");
     diagnoseFault();
+
   }
 
   void CollisionDetectorDiagnoser::diagnoseFault(){
     //Force
-    kinetic_energy_monitor::KineticEnergyMonitorMsg srv;
-    srv.request.collision_time = time_of_collision_;
+    kinetic_energy_monitor::KineticEnergyMonitorMsg kinetic_srv;
+    footprint_checker::CollisionCheckerMsg orientation_srv;
 
-    if(strength_srv_client_.call(srv)){
-      ROS_INFO_STREAM("Strength: " << srv.response.energy_lost);
+    kinetic_srv.request.collision_time = time_of_collision_;
+
+    if(strength_srv_client_.call(kinetic_srv)){
+      ROS_INFO_STREAM("Strength: " << kinetic_srv.response.energy_lost);
     }
 
+    geometry_msgs::Quaternion measured_collision;
+    measured_collision.w = 1;
+    orientation_srv.request.collision_orientation = measured_collision;
+
+    if(orientations_srv_client_.call(orientation_srv)){
+      ROS_INFO("Orientations Computed Correctly");
+      fault_.cause_ = FaultTopology::STATIC_OBSTACLE;
+      ROS_ERROR_ONCE("Collision FOUND");
+
+    }
+    else{
+      fault_.cause_ = FaultTopology::DYNAMIC_OBSTACLE;
+      ROS_ERROR_ONCE("Collision FOUND");
+
+      ROS_WARN("Error in orientations Server");
+    }
+
+
     //fault_.cause_ = FaultTopology::MISLOCALIZATION;
-    fault_.cause_ = FaultTopology::STATIC_OBSTACLE;
-    ROS_ERROR_ONCE("Collision FOUND");
     isCollisionDetected = false;
   }
 }  // namespace collision_detector_diagnoser
