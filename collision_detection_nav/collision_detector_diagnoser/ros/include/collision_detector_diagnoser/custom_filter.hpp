@@ -40,7 +40,7 @@ namespace collision_detector_diagnoser
     }
 
     void resetCollisionFlags(){
-      std::cout << "RCF";
+      //std::cout << "RCF";
 
       for (int b = 0; b < input_number_;++b){
         collision_flags_[b] = false;
