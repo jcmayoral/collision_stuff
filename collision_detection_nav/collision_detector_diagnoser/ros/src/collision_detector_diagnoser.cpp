@@ -113,7 +113,6 @@ namespace collision_detector_diagnoser
       for( unsigned int a = 0; a < getInputNumber(); a = a + 1 ){
 
         if (CustomMessageFilter::getCollisionFlag(a)){
-          ROS_WARN_STREAM("Collision Found in topic number " << a);
           current_collisions++;
         }
       }
