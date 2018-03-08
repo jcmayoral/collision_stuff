@@ -61,7 +61,7 @@ namespace collision_detector_diagnoser
 
     strength_srv_client_ = nh.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
     orientations_srv_client_ = nh.serviceClient<footprint_checker::CollisionCheckerMsg>("/collision_checker");
-    speak_pub_ = nh.advertise<std_msgs::String>("/say",1);
+    speak_pub_ = nh.advertise<std_msgs::String>("/sound/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = nh.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
     collision_pub_ = nh.advertise<fusion_msgs::monitorStatusMsg>("overall_collision", 1);
@@ -113,13 +113,12 @@ namespace collision_detector_diagnoser
       for( unsigned int a = 0; a < getInputNumber(); a = a + 1 ){
 
         if (CustomMessageFilter::getCollisionFlag(a)){
-          ROS_WARN_STREAM("Collision Found in topic number " << a);
           current_collisions++;
         }
       }
 
       if(current_collisions >= ceil(getCustomThrehold()* getInputNumber())){
-        ROS_ERROR_STREAM("CUSTOM COLLISION FOUND in "<< current_collisions <<" observers");
+        ROS_DEBUG_STREAM("CUSTOM COLLISION FOUND in "<< current_collisions <<" observers");
         isCollisionDetected = true;
       }
       else{
@@ -440,7 +439,9 @@ namespace collision_detector_diagnoser
       ROS_INFO_STREAM("Strength: " << kinetic_srv.response.energy_lost);
     }
 
-     tf::quaternionTFToMsg(mean_collision_orientation_, orientation_srv.request.collision_orientation);
+     //tf::quaternionTFToMsg(mean_collision_orientation_, orientation_srv.request.collision_orientation);
+     tf::quaternionTFToMsg(tf::createQuaternionFromYaw(kinetic_srv.response.collision_angle), orientation_srv.request.collision_orientation);
+
 
     if(orientations_srv_client_.call(orientation_srv)){
       ROS_INFO("Orientations Computed Correctly");

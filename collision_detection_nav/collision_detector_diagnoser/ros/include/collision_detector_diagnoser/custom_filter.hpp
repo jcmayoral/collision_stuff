@@ -40,9 +40,12 @@ namespace collision_detector_diagnoser
     }
 
     void resetCollisionFlags(){
-      std::cout << "RCF";
+      //std::cout << "RCF";
 
       for (int b = 0; b < input_number_;++b){
+        if (collision_flags_[b]){
+            ROS_WARN_STREAM("Collision Found in topic number " << b);
+        }
         collision_flags_[b] = false;
         flags_ids_[b] = false;
       }
@@ -94,8 +97,8 @@ namespace collision_detector_diagnoser
     }
 
     void subscribeCB(const fusion_msgs::sensorFusionMsgConstPtr& detector, int index){
-      mutex mu;
-      mu.lock();
+      //mutex mu;
+      //mu.lock();
       if (detector->msg == 2){
         collision_flags_[index] = true;
         string id(detector->sensor_id.data);
@@ -105,7 +108,7 @@ namespace collision_detector_diagnoser
           flags_ids_[index] = true;
         }
       }
-      mu.unlock();
+      //mu.unlock();
     }
 
     void clearCustomCollisionObserversIDS(){
