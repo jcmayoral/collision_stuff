@@ -118,7 +118,7 @@ namespace collision_detector_diagnoser
       }
 
       if(current_collisions >= ceil(getCustomThrehold()* getInputNumber())){
-        ROS_ERROR_STREAM("CUSTOM COLLISION FOUND in "<< current_collisions <<" observers");
+        ROS_DEBUG_STREAM("CUSTOM COLLISION FOUND in "<< current_collisions <<" observers");
         isCollisionDetected = true;
       }
       else{
