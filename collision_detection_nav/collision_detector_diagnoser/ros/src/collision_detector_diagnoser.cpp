@@ -439,7 +439,9 @@ namespace collision_detector_diagnoser
       ROS_INFO_STREAM("Strength: " << kinetic_srv.response.energy_lost);
     }
 
-     tf::quaternionTFToMsg(mean_collision_orientation_, orientation_srv.request.collision_orientation);
+     //tf::quaternionTFToMsg(mean_collision_orientation_, orientation_srv.request.collision_orientation);
+     tf::quaternionTFToMsg(tf::createQuaternionFromYaw(kinetic_srv.response.collision_angle), orientation_srv.request.collision_orientation);
+
 
     if(orientations_srv_client_.call(orientation_srv)){
       ROS_INFO("Orientations Computed Correctly");
