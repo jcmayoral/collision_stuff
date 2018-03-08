@@ -37,7 +37,7 @@ namespace collision_detector_diagnoser
     fault_.cause_ = FaultTopology::UNKNOWN;
     strength_srv_client_ = private_n.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("kinetic_energy_drop");
     orientations_srv_client_ = private_n.serviceClient<footprint_checker::CollisionCheckerMsg>("collision_checker");
-    speak_pub_ = private_n.advertise<std_msgs::String>("/say",1);
+    speak_pub_ = private_n.advertise<std_msgs::String>("/sound/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = private_n.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
     collision_pub_ = private_n.advertise<fusion_msgs::monitorStatusMsg>("overall_collision", 1);
