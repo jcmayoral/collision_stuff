@@ -12,9 +12,9 @@ min_vel_y: -0.1                     # default : -0.06
 max_rot_vel: 0.4                    # default : 1.0
 min_rot_vel: 0.01                   # default : 0.4
 
-acc_lim_x: 0.8                      # default : 1.5
-acc_lim_y: 0.8                      # default : 1.5
-acc_lim_theta: 2.0                  # default : 3.2
+acc_lim_x: 0.5                      # default : 1.5
+acc_lim_y: 0.5                      # default : 1.5
+acc_lim_theta: 1.0                  # default : 3.2
 acc_limit_trans: 0.8                # default : 1.5
 
 #----------------------------------------------
