@@ -46,6 +46,7 @@ namespace collision_detector_diagnoser
         if (collision_flags_[b]){
             ROS_WARN_STREAM("Collision Found in topic number " << b);
         }
+
         collision_flags_[b] = false;
         flags_ids_[b] = false;
       }
@@ -124,6 +125,9 @@ namespace collision_detector_diagnoser
       return custom_collision_observers_ids_;
     };
 
+  protected:
+    bool *collision_flags_;
+
   private:
     int timeout_;
     int input_number_;
@@ -131,7 +135,6 @@ namespace collision_detector_diagnoser
     std::vector<string> custom_collision_observers_ids_;
 
     ros::NodeHandle nh_;
-    bool *collision_flags_;
     bool *flags_ids_;
 
     std::thread *monitoring_thread_;
