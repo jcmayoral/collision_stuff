@@ -462,5 +462,6 @@ namespace collision_detector_diagnoser
 
     //fault_.cause_ = FaultTopology::MISLOCALIZATION;
     isCollisionDetected = false;
+    ros::Duration(2).sleep();
   }
 }  // namespace collision_detector_diagnoser
