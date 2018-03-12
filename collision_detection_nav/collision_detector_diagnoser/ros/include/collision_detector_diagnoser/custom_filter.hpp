@@ -54,6 +54,11 @@ namespace collision_detector_diagnoser
     void start(int observers_number){
       input_number_ = observers_number;
       collision_flags_ = new bool[observers_number];
+      //init flags
+      for( int i = 0; i < input_number_; ++i ){
+        collision_flags_[i] = false;
+      }
+
       flags_ids_ = new bool[observers_number];
 
       resetCollisionFlags();
@@ -101,10 +106,9 @@ namespace collision_detector_diagnoser
       //mu.lock();
       if (detector->msg == 2){
         collision_flags_[index] = true;
-        string id(detector->sensor_id.data);
 
         if (!flags_ids_[index]){
-          custom_collision_observers_ids_.push_back(id);
+          custom_collision_observers_ids_.push_back(string(detector->sensor_id.data));
           flags_ids_[index] = true;
         }
       }
