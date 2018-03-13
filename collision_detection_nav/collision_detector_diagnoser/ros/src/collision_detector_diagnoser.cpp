@@ -350,6 +350,7 @@ namespace collision_detector_diagnoser
     ROS_INFO("ASTO");
 
     if (is_custom_filter_requested_){
+      isCollisionDetected = false;
       ROS_DEBUG("Custom Filtering Requested");
       resetUnFilteredPublishers();
       unregisterCallbackForSyncronizers();
@@ -412,9 +413,6 @@ namespace collision_detector_diagnoser
   void CollisionDetectorDiagnoser::isolateFault(){
 
     //collision_output_msg_.header = time_of_collision_; //TODO
-    std_msgs::String msg;
-    msg.data ="ouch";
-    speak_pub_.publish(msg);
     fault_.type_ = FaultTopology::COLLISION;
     ROS_INFO("Isolating Platform Collision");
     isCollisionDetected = false;
@@ -438,6 +436,9 @@ namespace collision_detector_diagnoser
 
 
     if(orientations_srv_client_.call(orientation_srv)){
+      std_msgs::String msg;
+      msg.data ="ouch";
+      speak_pub_.publish(msg);
       ROS_INFO("Orientations Computed Correctly");
       if (orientation_srv.response.is_static_collision){
         fault_.cause_ = FaultTopology::STATIC_OBSTACLE;
