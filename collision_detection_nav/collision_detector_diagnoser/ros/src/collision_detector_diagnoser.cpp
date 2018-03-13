@@ -417,6 +417,7 @@ namespace collision_detector_diagnoser
     speak_pub_.publish(msg);
     fault_.type_ = FaultTopology::COLLISION;
     ROS_INFO("Isolating Platform Collision");
+    isCollisionDetected = false;
     diagnoseFault();
 
   }
@@ -443,7 +444,7 @@ namespace collision_detector_diagnoser
         ROS_ERROR("STATIC Collision FOUND");
       }
       else{
-        fault_.cause_ = FaultTopology::STATIC_OBSTACLE;
+        fault_.cause_ = FaultTopology::DYNAMIC_OBSTACLE;
         ROS_ERROR("DYNAMIC Collision FOUND");
       }
     }
@@ -454,7 +455,6 @@ namespace collision_detector_diagnoser
     }
 
     //fault_.cause_ = FaultTopology::MISLOCALIZATION;
-    isCollisionDetected = false;
     ros::Duration(2).sleep();
   }
 }  // namespace collision_detector_diagnoser
