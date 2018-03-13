@@ -105,17 +105,10 @@ namespace collision_detector_diagnoser
 
   void CollisionDetectorDiagnoser::listenTime(){
 
-    int current_collisions;
+    int current_collisions = 0;
 
     while(is_custom_filter_requested_){
-      current_collisions = 0;
-
-      for( unsigned int a = 0; a < getInputNumber(); a = a + 1 ){
-
-        if (CustomMessageFilter::getCollisionFlag(a)){
-          current_collisions++;
-        }
-      }
+      current_collisions = std::count (collision_flags_, collision_flags_+getInputNumber(), true);
 
       if(current_collisions >= ceil(getCustomThrehold()* getInputNumber())){
         ROS_DEBUG_STREAM("CUSTOM COLLISION FOUND in "<< current_collisions <<" observers");
@@ -462,5 +455,6 @@ namespace collision_detector_diagnoser
 
     //fault_.cause_ = FaultTopology::MISLOCALIZATION;
     isCollisionDetected = false;
+    ros::Duration(2).sleep();
   }
 }  // namespace collision_detector_diagnoser

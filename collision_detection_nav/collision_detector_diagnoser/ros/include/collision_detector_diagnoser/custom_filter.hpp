@@ -46,6 +46,7 @@ namespace collision_detector_diagnoser
         if (collision_flags_[b]){
             ROS_WARN_STREAM("Collision Found in topic number " << b);
         }
+
         collision_flags_[b] = false;
         flags_ids_[b] = false;
       }
@@ -54,6 +55,11 @@ namespace collision_detector_diagnoser
     void start(int observers_number){
       input_number_ = observers_number;
       collision_flags_ = new bool[observers_number];
+      //init flags
+      for( int i = 0; i < input_number_; ++i ){
+        collision_flags_[i] = false;
+      }
+
       flags_ids_ = new bool[observers_number];
 
       resetCollisionFlags();
@@ -101,10 +107,9 @@ namespace collision_detector_diagnoser
       //mu.lock();
       if (detector->msg == 2){
         collision_flags_[index] = true;
-        string id(detector->sensor_id.data);
 
         if (!flags_ids_[index]){
-          custom_collision_observers_ids_.push_back(id);
+          custom_collision_observers_ids_.push_back(string(detector->sensor_id.data));
           flags_ids_[index] = true;
         }
       }
@@ -120,6 +125,9 @@ namespace collision_detector_diagnoser
       return custom_collision_observers_ids_;
     };
 
+  protected:
+    bool *collision_flags_;
+
   private:
     int timeout_;
     int input_number_;
@@ -127,7 +135,6 @@ namespace collision_detector_diagnoser
     std::vector<string> custom_collision_observers_ids_;
 
     ros::NodeHandle nh_;
-    bool *collision_flags_;
     bool *flags_ids_;
 
     std::thread *monitoring_thread_;
