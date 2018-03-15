@@ -125,7 +125,7 @@ namespace collision_detector_diagnoser
     while(is_custom_filter_requested_){
        CustomMessageFilter::resetCollisionFlags();
        CustomMessageFilter::clearCustomCollisionObserversIDS();
-       ros::Duration(CustomMessageFilter::getTimeOut()/1000).sleep();
+       ros::Duration(double(CustomMessageFilter::getTimeOut())/1000).sleep();
        //std::this_thread::sleep_for(std::chrono::milliseconds(getTimeOut()));
        //ROS_INFO("RESET");
     }
