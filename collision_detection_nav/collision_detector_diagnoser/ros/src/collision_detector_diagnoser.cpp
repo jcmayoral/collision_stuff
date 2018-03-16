@@ -37,6 +37,8 @@ namespace collision_detector_diagnoser
     fault_.cause_ = FaultTopology::UNKNOWN;
     strength_srv_client_ = private_n.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("kinetic_energy_drop");
     orientations_srv_client_ = private_n.serviceClient<footprint_checker::CollisionCheckerMsg>("collision_checker");
+    recovery_srv_client_ = private_n.serviceClient<mcr_recovery_behaviors::ForceFieldMsg>("force_field_service");
+
     speak_pub_ = private_n.advertise<std_msgs::String>("/sound/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = private_n.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
@@ -61,6 +63,8 @@ namespace collision_detector_diagnoser
 
     strength_srv_client_ = nh.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
     orientations_srv_client_ = nh.serviceClient<footprint_checker::CollisionCheckerMsg>("/collision_checker");
+    recovery_srv_client_ = nh.serviceClient<mcr_recovery_behaviors::ForceFieldMsg>("/force_field_service");
+
     speak_pub_ = nh.advertise<std_msgs::String>("/sound/say",1);
     ros::Duration(2).sleep();
     orientation_pub_ = nh.advertise<geometry_msgs::PoseArray>("measured_collision_orientations", 1);
@@ -424,6 +428,7 @@ namespace collision_detector_diagnoser
     //Force
     kinetic_energy_monitor::KineticEnergyMonitorMsg kinetic_srv;
     footprint_checker::CollisionCheckerMsg orientation_srv;
+    mcr_recovery_behaviors::ForceFieldMsg recovery_srv;
 
     kinetic_srv.request.collision_time = time_of_collision_;
 
@@ -436,9 +441,6 @@ namespace collision_detector_diagnoser
 
 
     if(orientations_srv_client_.call(orientation_srv)){
-      std_msgs::String msg;
-      msg.data ="ouch";
-      speak_pub_.publish(msg);
       ROS_INFO("Orientations Computed Correctly");
       if (orientation_srv.response.is_static_collision){
         fault_.cause_ = FaultTopology::STATIC_OBSTACLE;
@@ -448,6 +450,19 @@ namespace collision_detector_diagnoser
         fault_.cause_ = FaultTopology::DYNAMIC_OBSTACLE;
         ROS_ERROR("DYNAMIC Collision FOUND");
       }
+
+      ros::Duration(2).sleep();//Give time to costmap to update
+
+      if(recovery_srv_client_.call(recovery_srv)){
+        std_msgs::String msg;
+        msg.data ="ouch";
+        speak_pub_.publish(msg);
+        ROS_INFO("FORCE FIELD RECOVERY SUCCESS");
+      }
+      else{
+        ROS_WARN("FORCE FIELD RECOVERY FAILED");
+      }
+
     }
     else{
       ROS_WARN("Error in orientations Server");
@@ -456,6 +471,5 @@ namespace collision_detector_diagnoser
     }
 
     //fault_.cause_ = FaultTopology::MISLOCALIZATION;
-    ros::Duration(2).sleep();
   }
 }  // namespace collision_detector_diagnoser

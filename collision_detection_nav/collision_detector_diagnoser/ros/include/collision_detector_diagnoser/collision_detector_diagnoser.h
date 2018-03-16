@@ -13,6 +13,8 @@
 
 #include <kinetic_energy_monitor/KineticEnergyMonitorMsg.h>
 #include <footprint_checker/CollisionCheckerMsg.h>
+#include <mcr_recovery_behaviors/ForceFieldMsg.h>
+
 #include <dynamic_reconfigure/server.h>
 #include <collision_detector_diagnoser/diagnoserConfig.h>
 #include <collision_detector_diagnoser/sync_policies.h>
@@ -135,6 +137,7 @@ namespace collision_detector_diagnoser
 
       ros::ServiceClient strength_srv_client_;
       ros::ServiceClient orientations_srv_client_;
+      ros::ServiceClient recovery_srv_client_;
 
       //Dynamic Reconfigure
       dynamic_reconfigure::Server<collision_detector_diagnoser::diagnoserConfig>* dyn_server;

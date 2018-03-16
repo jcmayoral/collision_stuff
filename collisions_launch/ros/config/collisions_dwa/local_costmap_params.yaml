@@ -16,4 +16,4 @@ local_costmap:
       - {name: static_map, type: "costmap_2d::StaticLayer"}
       - {name: obstacles,  type: "costmap_2d::VoxelLayer"}
       - {name: inflater,   type: "costmap_2d::InflationLayer"}
-      #- {name: collisions, type: "collision_costmap_layer::CollisionCostmapLayer"}
+      - {name: collisions, type: "collision_costmap_layer::CollisionCostmapLayer"}
