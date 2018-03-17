@@ -440,7 +440,7 @@ namespace move_base_fault_tolerant {
              result = false;
         }
 
-	      if (!result){
+	if (!result){
           boost::unique_lock<boost::mutex> lock(planner_mutex_);
           setRunPlanner(false);
           lock.unlock();
