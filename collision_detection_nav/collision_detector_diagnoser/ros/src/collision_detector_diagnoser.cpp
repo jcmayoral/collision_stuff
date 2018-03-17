@@ -110,6 +110,7 @@ namespace collision_detector_diagnoser
   void CollisionDetectorDiagnoser::listenTime(){
 
     int current_collisions = 0;
+    ros::Duration(1).sleep();
 
     while(is_custom_filter_requested_){
       current_collisions = std::count (collision_flags_, collision_flags_+getInputNumber(), true);
