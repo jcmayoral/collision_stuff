@@ -97,6 +97,7 @@ namespace collision_detector_diagnoser
     setTimeOut(config.custom_timeout);
 
     initialize(sensor_number_);
+    isCollisionDetected = false;
     ROS_INFO("Configuration Update Complete");
     mu.unlock();
   }
