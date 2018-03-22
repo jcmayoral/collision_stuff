@@ -9,6 +9,7 @@ find_package(catkin REQUIRED
         fault_core
         geometry_msgs
         std_srvs
+        mcr_recovery_behaviors
         )
 
 include_directories(ros/include
@@ -25,12 +26,13 @@ catkin_package(
         fault_core
         geometry_msgs
         std_srvs
+        mcr_recovery_behaviors
 )
 
 add_library(dynamic_obstacles_recovery ros/src/dynamic_obstacles_recovery.cpp)
 
 add_executable(dynamic_obstacles_recovery_node
-  ros/script/dynamic_obstacles_recovery_node.cpp
+  ros/src/dynamic_obstacles_recovery_node.cpp
 )
 
 target_link_libraries(dynamic_obstacles_recovery ${catkin_LIBRARIES})

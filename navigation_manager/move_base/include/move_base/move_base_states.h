@@ -15,7 +15,7 @@ namespace move_base {
         PLANNING,
         CONTROLLING,
         CLEARING,
-        RECOVERING
+        RECOVERING // collisions happens here
       };
 
       enum RecoveryTrigger {

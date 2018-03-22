@@ -30,7 +30,7 @@ catkin_package(
 add_library(mislocalization_collision_recovery ros/src/mislocalization_collision_recovery.cpp)
 
 add_executable(mislocalization_collision_recovery_node
-  ros/script/mislocalization_collision_recovery_node.cpp
+  ros/src/mislocalization_collision_recovery_node.cpp
 )
 
 target_link_libraries(mislocalization_collision_recovery ${catkin_LIBRARIES})

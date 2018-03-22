@@ -283,7 +283,6 @@ namespace move_base_fault_tolerant {
     * Review notes of the state machine to decide how to modify
     */
     //the move_base state machine, handles the control logic for navigation
-    //ROS_INFO_STREAM("State " << getState());
     switch(getState()){
       //if we are in a planning state, then we'll attempt to make a plan
       case MoveBaseState::PLANNING:
@@ -440,7 +439,7 @@ namespace move_base_fault_tolerant {
              result = false;
         }
 
-	if (!result){
+	      if (!result){ // If recovery faile or not found abort motion
           boost::unique_lock<boost::mutex> lock(planner_mutex_);
           setRunPlanner(false);
           lock.unlock();

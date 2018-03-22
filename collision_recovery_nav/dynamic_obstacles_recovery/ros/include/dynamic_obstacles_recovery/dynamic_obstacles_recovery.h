@@ -6,6 +6,7 @@
 #include <fault_core/fault_recovery_behavior.h>
 #include <base_local_planner/costmap_model.h>
 #include <std_srvs/Empty.h>
+#include <mcr_recovery_behaviors/ForceFieldMsg.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 
 namespace dynamic_obstacles_recovery
@@ -37,7 +38,11 @@ namespace dynamic_obstacles_recovery
 
 
     private:
+      //It is useful to clear costmap
       ros::ServiceClient clear_costmaps_client_;
+      //force_field_service
+      ros::ServiceClient recovery_srv_client_;
+
 
   };
 

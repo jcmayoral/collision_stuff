@@ -11,12 +11,21 @@
   <author email="olima_84@yahoo.com">Oscar Lima</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>simple_costmap_layer</run_depend>
-  <run_depend>collision_costmap_layer</run_depend>
-  <run_depend>simple_recovery_behavior</run_depend>
+
   <run_depend>simple_collision_detector</run_depend>
+  <run_depend>collision_detector_diagnoser</run_depend>
+  <run_depend>footprint_checker</run_depend>
+  <run_depend>kinetic_energy_monitor</run_depend>
+  <run_depend>mcr_recovery_behaviors</run_depend>
+  <run_depend>velocity_contoller_monitoring</run_depend>
+  <run_depend>dynamic_obstacles_recovery</run_depend>
+  <run_depend>mislocalization_collision_recovery</run_depend>
+  <run_depend>collision_costmap_layer</run_depend>
   <run_depend>simple_collision_recovery</run_depend>
+  <run_depend>static_obstacles_recovery</run_depend>
   <run_depend>collisions_launch</run_depend>
+  <run_depend>simple_costmap_layer</run_depend>
+  <run_depend>simple_recovery_behavior</run_depend>
   <run_depend>fault_core</run_depend>
   <run_depend>fusion_msgs</run_depend>
   <run_depend>move_base</run_depend>

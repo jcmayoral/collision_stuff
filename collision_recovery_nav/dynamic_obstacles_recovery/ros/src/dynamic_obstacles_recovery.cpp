@@ -1,4 +1,4 @@
-#include "dynamic_obstacles_recovery/static_obstacles_recovery.h"
+#include "dynamic_obstacles_recovery/dynamic_obstacles_recovery.h"
 #include <pluginlib/class_list_macros.h>
 
 // register this class as a recovery behavior plugin
@@ -15,6 +15,7 @@ namespace dynamic_obstacles_recovery
     fault_cause_ = FaultTopology::DYNAMIC_OBSTACLE;
     ros::NodeHandle n;
     clear_costmaps_client_ = n.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
+    recovery_srv_client_ = private_n.serviceClient<mcr_recovery_behaviors::ForceFieldMsg>("force_field_service");
     ROS_INFO("Constructor DynamicObstaclesCollisionRecovery");
     ros::spinOnce(); // the missing call
   }
@@ -33,16 +34,27 @@ namespace dynamic_obstacles_recovery
   {
 
     std_srvs::Empty s;
+    mcr_recovery_behaviors::ForceFieldMsg recovery_srv;
 
-    ROS_INFO("Running Dyanmic Recovery");
-    //clear_costmaps
-    /*if (ros::service::waitForService ("/move_base/clear_costmaps", 10)) {
+    ROS_INFO("Running Dynamic Recovery");
+    //recover from collision force_field_service
+    if(recovery_srv_client_.call(recovery_srv)){
+      std_msgs::String msg;
+      msg.data ="ouch";
+      speak_pub_.publish(msg);
+      ROS_INFO("FORCE FIELD RECOVERY SUCCESS");
+    }
+    else{
+      ROS_WARN("FORCE FIELD RECOVERY FAILED");
+    }
+
+    //clear costmap
+    if (ros::service::waitForService ("/move_base/clear_costmaps", 10)) {
       if(!clear_costmaps_client_.call(s)) {
         ROS_ERROR ("Error clearing costmap service");
 	      return false;
       }
     }
-    */
     return true;
   }
 

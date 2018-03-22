@@ -58,7 +58,7 @@ namespace mislocalization_collision_recovery
       }
     }
 
-    //reset Localtization
+    //reset Localization
     if (ros::service::waitForService ("/global_localization", 100)) {
       if(!global_client_.call(s)) {
         ROS_ERROR ("Error calling service");
@@ -69,7 +69,7 @@ namespace mislocalization_collision_recovery
       bool ready = false;      //Force update of the particle filter
       ros::service::waitForService ("/request_nomotion_update", 100);
 
-      while((!ready) && step < max_iterations_){ //TODO
+      while((!ready) && step < max_iterations_){ //TODO //wait variance magnitude is less than a threshold on x, y , yaw
         if(!amcl_client_.call(s)){
           ROS_ERROR("Resample Error");
           return false;
@@ -77,7 +77,6 @@ namespace mislocalization_collision_recovery
         step++;
 
         ros::Duration(0.1).sleep();
-        ROS_INFO_STREAM(ready);
         ready = fabs(amcl_pose_.pose.covariance[0]) < threshold_ &&
                 fabs(amcl_pose_.pose.covariance[7]) < threshold_ &&
                 fabs(amcl_pose_.pose.covariance[35]) < threshold_;

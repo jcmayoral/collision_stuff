@@ -51,7 +51,6 @@ namespace collision_detector_diagnoser
     //Init Service Client
     strength_srv_client_ = private_n.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("kinetic_energy_drop");
     orientations_srv_client_ = private_n.serviceClient<footprint_checker::CollisionCheckerMsg>("collision_checker");
-    recovery_srv_client_ = private_n.serviceClient<mcr_recovery_behaviors::ForceFieldMsg>("force_field_service");
 
     //this publisher is cob3 specific
     speak_pub_ = private_n.advertise<std_msgs::String>("/sound/say",1);
@@ -78,7 +77,6 @@ namespace collision_detector_diagnoser
 
     strength_srv_client_ = nh.serviceClient<kinetic_energy_monitor::KineticEnergyMonitorMsg>("/kinetic_energy_drop");
     orientations_srv_client_ = nh.serviceClient<footprint_checker::CollisionCheckerMsg>("/collision_checker");
-    recovery_srv_client_ = nh.serviceClient<mcr_recovery_behaviors::ForceFieldMsg>("/force_field_service");
 
     speak_pub_ = nh.advertise<std_msgs::String>("/sound/say",1);
     ros::Duration(2).sleep();
@@ -440,7 +438,6 @@ namespace collision_detector_diagnoser
     //Force
     kinetic_energy_monitor::KineticEnergyMonitorMsg kinetic_srv;
     footprint_checker::CollisionCheckerMsg orientation_srv;
-    mcr_recovery_behaviors::ForceFieldMsg recovery_srv;
 
     kinetic_srv.request.collision_time = time_of_collision_;
 
@@ -463,18 +460,8 @@ namespace collision_detector_diagnoser
       }
 
       ros::Duration(2).sleep();//Give time to costmap to update
-
-      if(recovery_srv_client_.call(recovery_srv)){
-        std_msgs::String msg;
-        msg.data ="ouch";
-        speak_pub_.publish(msg);
-        ROS_INFO("FORCE FIELD RECOVERY SUCCESS");
-      }
-      else{
-        ROS_WARN("FORCE FIELD RECOVERY FAILED");
-      }
-
     }
+
     else{
       ROS_WARN("Error in orientations Server");
       fault_.cause_ = FaultTopology::UNKNOWN;

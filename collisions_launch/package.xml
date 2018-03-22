@@ -2,7 +2,7 @@
 <package>
   <name>collisions_launch</name>
   <version>1.0.0</version>
-  <description> B-it-bots navigations launch files enhanced with collision detection and recovery skills </description>
+  <description> B-it-bots navigations launch files enhanced with collision detection and recovery skills, original params by Oscar Lima (mdr_2dnav)</description>
 
   <maintainer email="jocamaba1989@gmail.com">Jose Mayoral</maintainer>
 
