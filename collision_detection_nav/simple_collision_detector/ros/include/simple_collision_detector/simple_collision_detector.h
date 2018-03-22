@@ -59,12 +59,22 @@ namespace simple_collision_detector
        */
       fault_core::FaultTopology getFault();
 
+      /**
+       * @brief default CallBack for any collision observer
+       */
       void mainCallBack(const fusion_msgs::sensorFusionMsg msg);
-      //void secondCallBack(const sensor_msgs::ImageConstPtr& msg1, const sensor_msgs::ImageConstPtr&  msg2);
-      //void thirdCallBack(const geometry_msgs::AccelStamped::ConstPtr& msg);
 
     private:
+
+      /**
+       * @brief stores n number of collision observers subcribers
+       */
+
       std::vector<ros::Subscriber> array_subcribers_;
+
+      /*
+      * @brief isCollisionDetected is the flag used by navigation_manager to trigger isolation and recovery procedures
+      */
       bool isCollisionDetected;
   };
 

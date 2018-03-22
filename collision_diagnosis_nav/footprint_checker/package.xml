@@ -1,8 +1,8 @@
 <package>
   <name>footprint_checker</name>
-  <version>0.2.2</version>
+  <version>1.1.0</version>
   <description>
-    This package provides the functionality to check if base footprint is in collision, the given target pose and the costmap information. Based of base_collision_checker package.
+    This package provides the functionality to check if base footprint is in collision, the given target pose and the costmap information. Based of footprint_checker package from git@github.com:jcmayoral/trajectory_follower.git.
   </description>
   <maintainer email="jose.mayoral@smail.inf.h-brs.de">Jose C Mayoral B</maintainer>
   <license>GPLv3</license>

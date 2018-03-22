@@ -1,10 +1,3 @@
-/**
- * Copyright [2015] <Bonn-Rhein-Sieg University>
- * collision_checker.cpp
- *
- * Created on: May 16th, 2016
- * Author: Jose
- */
 #ifndef FOOTPRINT_EXTENDER_H_
 #define FOOTPRINT_EXTENDER_H_
 

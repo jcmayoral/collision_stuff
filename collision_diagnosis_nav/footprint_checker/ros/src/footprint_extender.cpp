@@ -1,10 +1,3 @@
-/**
- * Copyright [2016] <Bonn-Rhein-Sieg University>
- * base_collision_checker_node.cpp
- *
- * Created on: May 16th, 2016
- * Author: Jose Carlos Mayoral
- */
 #include <footprint_checker/footprint_extender.h>
 #include <math.h>
 using namespace std;

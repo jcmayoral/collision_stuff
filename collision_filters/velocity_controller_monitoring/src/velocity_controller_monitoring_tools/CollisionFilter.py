@@ -59,10 +59,8 @@ class CollisionFilter(ChangeDetection):
 
     def publishMsg(self,data):
         output_msg = controllerFusionMsg()
-        #Filling Message
         output_msg.header.frame_id = self.frame
         output_msg.window_size = 1
-        #print ("Accelerations " , x,y,z)
         output_msg.controller_id.data = self.controller_id
         output_msg.header.stamp = rospy.Time.now()
         print (data)

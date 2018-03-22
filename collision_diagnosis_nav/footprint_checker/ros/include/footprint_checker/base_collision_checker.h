@@ -1,10 +1,3 @@
-/**
- * Copyright [2015] <Bonn-Rhein-Sieg University>
- * base_collision_checker_node.cpp
- *
- * Created on: May 16th, 2016
- * Author: Jose
- */
 #ifndef BASE_COLLISION_CHECKER_H_
 #define BASE_COLLISION_CHECKER_H_
 
@@ -26,7 +19,7 @@
 
 #include <string>
 #include <vector>
-#include <mutex>          // std::mutex
+#include <mutex>
 #include <tf/transform_listener.h>
 #include <footprint_checker/footprint_extender.h>
 #include <footprint_checker/CollisionCheckerMsg.h>
@@ -123,11 +116,12 @@ class BaseCollisionChecker
          */
         sensor_msgs::PointCloud2 point_cloud_;
 
-
-        FootprintExtender footprint_extender_;
+        //footprint_extender::FootprintExtender
+        FootprintExtender footprint_extepnder_;
 
         double collision_threshold_;
         std::vector <geometry_msgs::Pose> collided_poses_;
+
         std::vector <double> footprint_costs_;
 
         geometry_msgs::PoseArray collided_poses_array_;

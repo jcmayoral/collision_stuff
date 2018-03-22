@@ -10,7 +10,7 @@ int main(int argc,char** argv){
   int sensor_number = 4;
 
   if (argc >= 2 ){
-    sensor_number = atoi(argv[1]);
+    sensor_number = atoi(argv[1]); //if number of sensor is provided by arguments then use it
   }
 
   ROS_INFO_STREAM("Setting " << sensor_number << "sensors");
@@ -20,13 +20,13 @@ int main(int argc,char** argv){
   while(ros::ok()){
     if(diagnoser_->detectFault()){
       ROS_INFO_STREAM("Collision Detected");
+      //run isolation
+      //after isolation diagnosis run
       diagnoser_->isolateFault();
     }
-    //diagnoser_.isolateFault();
     ros::spinOnce(); // the missing call
   }
 
-  //ros::spin();
   ROS_INFO("Out");
 
   return 1;

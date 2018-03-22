@@ -19,7 +19,9 @@ namespace simple_collision_detector
 
   SimpleCollisionDetector::SimpleCollisionDetector(): isCollisionDetected(false)
   {
+    //Define Fault Type as Unknown
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE;
+    //Define Fault Cause as Unknown
     fault_.cause_ = FaultTopology::UNKNOWN;
     ROS_INFO("Constructor SimpleCollisionDetector");
   }
@@ -36,6 +38,7 @@ namespace simple_collision_detector
   }
 
 
+  // This callback receives topics from all observers and triggers the isolation if any of them return collision
   void SimpleCollisionDetector::mainCallBack(const fusion_msgs::sensorFusionMsg msg){
     ROS_DEBUG_STREAM("Message received " << msg.window_size);
     if (msg.msg == fusion_msgs::sensorFusionMsg::ERROR){
@@ -46,14 +49,7 @@ namespace simple_collision_detector
     }
   }
 
-  /*void SimpleCollisionDetector::secondCallBack(const sensor_msgs::ImageConstPtr& msg1, const sensor_msgs::ImageConstPtr&  msg2){
-    ROS_INFO("secondCallBack");
-  }*/
-  /*void SimpleCollisionDetector::thirdCallBack(const  geometry_msgs::AccelStamped::ConstPtr& msg){
-    ROS_INFO("third CB");
-  }*/
-
-
+  //This function is called on the navigation_manager, register n number of subscribers
   void SimpleCollisionDetector::initialize(int sensor_number)
   {
     ros::NodeHandle nh;
@@ -63,19 +59,6 @@ namespace simple_collision_detector
       array_subcribers_.push_back(sub);
     }
 
-    /*
-    //Sequencer
-    message_filters::Subscriber<geometry_msgs::AccelStamped> sub(nh, "my_topic", 1);
-    message_filters::TimeSequencer<geometry_msgs::AccelStamped> seq(sub, ros::Duration(0.1), ros::Duration(0.01), 10);
-    seq.registerCallback(boost::bind(&SimpleCollisionDetector::thirdCallBack,this,_1));
-
-    //Syncronizer
-    message_filters::Subscriber<sensor_msgs::Image> sub(nh, "my_topic", 1);
-    message_filters::Subscriber<sensor_msgs::Image> sub2(nh, "my_topic2", 1);
-    TimeSynchronizer<sensor_msgs::Image, sensor_msgs::Image> sync(sub, sub2, 10);
-    sync.registerCallback(boost::bind(&SimpleCollisionDetector::secondCallBack,this, _1, _2));
-    ros::spin();
-    */
   }
 
   bool SimpleCollisionDetector::detectFault()
@@ -93,8 +76,8 @@ namespace simple_collision_detector
   }
 
   void SimpleCollisionDetector::diagnoseFault(){
-    fault_.cause_ = FaultTopology::MISLOCALIZATION;
-    fault_.type_ = FaultTopology::COLLISION;
+    fault_.cause_ = FaultTopology::MISLOCALIZATION; // By default run MisLocalization Recovery Strategy
+    fault_.type_ = FaultTopology::COLLISION; // Classify the fault as a Collision
     ROS_ERROR_ONCE("Collision FOUND");
   }
 }  // namespace simple_collision_detector

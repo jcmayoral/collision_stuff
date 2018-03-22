@@ -1,26 +1,19 @@
-/**
- * Copyright [2015] <Bonn-Rhein-Sieg University>
- * base_collision_checker_node.cpp
- *
- * Created on: May 16th, 2016
- * Author: Jose
- */
 #include <footprint_checker/base_collision_checker.h>
 
 BaseCollisionChecker::BaseCollisionChecker(ros::NodeHandle &nh):
         nh_(nh), is_point_cloud_received_(false), collision_threshold_(20.0),
-        is_footprint_received(false)
+        is_footprint_received(false), footprint_extender(nh_)
 {
     orientations_pub_ = nh_.advertise<geometry_msgs::PoseArray>("collisions_orientations", 1);
     //From Local_planner
     footprint_sub_ = nh.subscribe("/move_base/local_costmap/footprint",4, &BaseCollisionChecker::footprintCB, this);
+    //PointCloud contains costs fo the lcoal planner DWA
     point_cloud_sub_ = nh_.subscribe("/move_base/DWAPlannerROS/cost_cloud",1, &BaseCollisionChecker::pointCloudCB, this);
+    //Publisher of modified version of cost_cloud
     point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("overlap_costmap",2);
+    //Publisher of collision Contact Points...Subscriber is on the Layer
     collision_point_pub_ = nh_.advertise<geometry_msgs::PointStamped>("collision_contact_point",1);
-
     nh.param("collision_checker_threshold", collision_threshold_,30.0);
-
-    footprint_extender_ = FootprintExtender(nh);
     ROS_INFO("State: INIT");
 }
 
@@ -32,15 +25,18 @@ bool BaseCollisionChecker::runService(footprint_checker::CollisionCheckerMsg::Re
          footprint_checker::CollisionCheckerMsg::Response &resp)
 {
     resp.success = false;
-    double threshold = 0.2;
+    double threshold = 0.2;//how close should the orientation given should be from the orientations of the footprints to match a point of collision
 
-    if (is_point_cloud_received_ && is_footprint_received){
+    if (is_point_cloud_received_ && is_footprint_received){ // footprint and point_cloud must be received
         ROS_INFO_STREAM("Request Received");
+        //extend footprint
         footprint_extender_.getIntermediateFootprint(footprint_);
+        //update PointCloud
         updatePointCloud();
         ROS_INFO("Service Finished Correctly");
         resp.success = true;
 
+        //get Yaw from input quaternion
         double collision_yaw = tf::getYaw(req.collision_orientation);
         ROS_INFO_STREAM("Measured orientation " << collision_yaw);
         resp.is_static_collision = false;
@@ -50,56 +46,67 @@ bool BaseCollisionChecker::runService(footprint_checker::CollisionCheckerMsg::Re
 
 
         //Iterator initialization
-        std::vector<std::pair<double,double> >::iterator it = footprint_extender_.footprint_extended_vector_.begin();
-        std::vector<double>::iterator cost_it = footprint_costs_.begin();
+        std::vector<std::pair<double,double> >::iterator it = footprint_extender_.footprint_extended_vector_.begin(); //init iterator
+        std::vector<double>::iterator cost_it = footprint_costs_.begin(); //init footprint_costs_ iterator
 
+        //iterate on footprint and costs
         for ( ; it != footprint_extender_.footprint_extended_vector_.end(); ++it, ++cost_it){
 
           geometry_msgs::PoseStamped pose_in, pose_out;
           pose_in.header.frame_id = footprint_extender_.base_frame_;
           pose_in.pose.position.x = it->first;
           pose_in.pose.position.y = it->second;
-
           pose_in.pose.orientation.w = 1;
 
+          //transform pose on footprint to base_footprint
           tf_listener.transformPose (footprint_extender_.goal_frame_, ros::Time(0), pose_in, footprint_extender_.base_frame_, pose_out);
 
-
+          //Angle on local frame of footprint
           ROS_DEBUG_STREAM("ANGLE " << atan2( pose_out.pose.position.y, pose_out.pose.position.x));
 
+          //If diff of provided yaw and footprint quaternion is lees than the threshold then the point of collision is found
           if (fabs(collision_yaw - atan2( pose_out.pose.position.y, pose_out.pose.position.x)) < threshold){
             geometry_msgs::PointStamped msg;
             msg.header.frame_id =  footprint_extender_.base_frame_;
 
+            /*If point of collision is added dirrectly over the footprint the robot might be stuck
+            * A common resolution on costamp is 0.05 cm per pixel... a modified point of collision will be set on the next pixel
+            * This is done taken advantage on the local coordinates
+            * TODO Not magic number it can be taken from the costmap + an error
+            */
+
+            //Front
             if (it->first > 0){
                 msg.point.x = it->first + 0.06;
             }
-            else{
+            else{//back
                 msg.point.x = it->first - 0.06;
             }
 
-            if (it->second > 0){
+            if (it->second > 0){//right
                 msg.point.y = it->second + 0.06;
             }
-            else{
+            else{//left
                 msg.point.y = it->second - 0.06;
             }
 
             ROS_WARN_STREAM("Cost of Collision "<< *cost_it);
+            //Add poitn to collision
             collision_point_pub_.publish(msg);
             if (*cost_it < 25){
+              //If cost of the selected footprint point is less than a threshold then the collision happens again an obstacle on the map
               resp.is_static_collision = true;
             }
 
           }
         }
-        //req.collision_orientation
+        //return collisions_poses
         resp.potential_collisions = collided_poses_array_;
         return true;
     }
     else{
         ROS_WARN("Subscribing Topics Missing Not Received");
-        return true;
+        return false;
     }
 }
 
@@ -120,11 +127,10 @@ void BaseCollisionChecker::pointCloudCB(const sensor_msgs::PointCloud2ConstPtr &
 
 void BaseCollisionChecker::updatePointCloud(){
 
+    //clear store arrays
     collided_poses_.clear();
     footprint_costs_.clear();
-    /*for (int i=0; i< point_cloud_.fields.size(); i++){
-      ROS_INFO_STREAM("field " << point_cloud_.fields[i]);
-    }*/
+
     std::mutex mtx;           // mutex for critical section
     mtx.lock();
 
@@ -137,11 +143,9 @@ void BaseCollisionChecker::updatePointCloud(){
     //sensor_msgs::PointCloud2Iterator<uint8_t> iter_r(point_cloud_, "r");
     //sensor_msgs::PointCloud2Iterator<uint8_t> iter_g(point_cloud_, "g");
     //sensor_msgs::PointCloud2Iterator<uint8_t> iter_b(point_cloud_, "b");
+
+    //cost_cloud provides a field named total_cost
     sensor_msgs::PointCloud2Iterator<float> iter_tc(point_cloud_, "total_cost");
-
-    //pcd_modifier.resize(point_cloud_.height * point_cloud_.width);
-
-
     //conversion for native pcl approach
     pcl::PCLPointCloud2 pcl_point_cloud;
     pcl_conversions::toPCL(point_cloud_,pcl_point_cloud);
@@ -155,6 +159,7 @@ void BaseCollisionChecker::updatePointCloud(){
 
     int K = 5;
 
+    //iterates on the extended footprint
     for (std::vector<std::pair<double,double> >::iterator it = footprint_extender_.footprint_extended_vector_.begin() ;
               it != footprint_extender_.footprint_extended_vector_.end(); ++it){
         //Search
@@ -166,34 +171,30 @@ void BaseCollisionChecker::updatePointCloud(){
 
         double partial_cost = 0.0;
 
+        //search for the nearest points of the footprin
         if ( kdtree.nearestKSearch (searchPoint, K, pointIdxNKNSearch, pointNKNSquaredDistance) > 0 ){
             for (size_t i = 0; i < pointIdxNKNSearch.size (); ++i){
-              //std::cout << temp_cloud->points[ pointIdxNKNSearch[i] ].x
-              //          << " " << temp_cloud->points[ pointIdxNKNSearch[i] ].y
-              //          << " " << temp_cloud->points[ pointIdxNKNSearch[i] ].z
-              //          << " (squared distance: " << pointNKNSquaredDistance[i] << ")" << std::endl;
-              //*(iter_z+pointIdxNKNSearch[i]) = 1;
+              //sum cost of the neighbour
               partial_cost += *(iter_tc + pointIdxNKNSearch[i]);
-              //temp_cloud->points[ pointIdxNKNSearch[i] ].z = 1;
               temp_cloud->points[ pointIdxNKNSearch[i] ].r = 255;
-              //ROS_INFO("a");
             }
 
+            //mean_cost
             partial_cost /= pointIdxNKNSearch.size();
             ROS_DEBUG_STREAM("costs " << partial_cost);
             //if(partial_cost<min_cost){
             footprint_costs_.push_back(partial_cost);
 
-            if(partial_cost>= collision_threshold_){
+            //TODO a probability approach can be develope on this point taken current speed against cost on the costmap
+            if(partial_cost>= collision_threshold_){ //potential_collision found if the collision threshold is less
               ROS_DEBUG_STREAM("Potential Collision Found in " << searchPoint.x << " , " << searchPoint.y);
-              //transformPoint(searchPoint);
               geometry_msgs::Pose tmp_pose;
               tmp_pose.position.x = searchPoint.x;
               tmp_pose.position.y = searchPoint.y;
               tmp_pose.orientation.w = 1.0;
               collided_poses_.push_back(tmp_pose);
 
-              for (size_t i = 0; i < pointIdxNKNSearch.size (); ++i){
+              for (size_t i = 0; i < pointIdxNKNSearch.size (); ++i){//set color to visualize clusters
                 temp_cloud->points[ pointIdxNKNSearch[i] ].b = 255;
                 temp_cloud->points[ pointIdxNKNSearch[i] ].g = 255;
               }
@@ -215,7 +216,6 @@ void BaseCollisionChecker::transformAndPublishPoints(){
   tf::TransformListener tf_listener;
   tf::StampedTransform transform;
   tf_listener.waitForTransform(footprint_extender_.goal_frame_, footprint_extender_.base_frame_, ros::Time(0), ros::Duration(1));
-  //tf_listener.lookupTransform(footprint_extender_.goal_frame_, footprint_extender_.base_frame_,ros::Time(),transform);
 
   for (std::vector<geometry_msgs::Pose>::iterator it = collided_poses_.begin() ; it != collided_poses_.end(); ++it){
     geometry_msgs::PoseStamped pose_in, pose_out;
@@ -229,9 +229,5 @@ void BaseCollisionChecker::transformAndPublishPoints(){
     ROS_DEBUG_STREAM("Collision in base_footprint " << pose_out);
   }
 
-  orientations_pub_.publish(collided_poses_array_);
-
-  //transformPose (const std::string &target_frame, const ros::Time &target_time, const geometry_msgs::PoseStamped &pin, const std::string &fixed_frame, geometry_msgs::PoseStamped &pout) const Transform a Stamped Pose Message into the target frame and time This can throw all that lookupTransform can throw as well as tf::InvalidTransform.
-  //transformPose (const std::string &target_frame, const geometry_msgs::PoseStamped &stamped_in, geometry_msgs::PoseStamped &stamped_out)
-
+  orientations_pub_.publish(collided_poses_array_);//publish orientations
 }

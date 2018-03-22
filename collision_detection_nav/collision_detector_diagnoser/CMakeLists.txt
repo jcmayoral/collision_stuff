@@ -38,7 +38,7 @@ catkin_package(
 add_library(collision_detector_diagnoser ros/src/collision_detector_diagnoser.cpp)
 
 add_executable(collision_detector_diagnoser_node
-  ros/script/collision_detector_diagnoser_node.cpp
+  ros/src/collision_detector_diagnoser_node.cpp
 )
 
 target_link_libraries(collision_detector_diagnoser ${catkin_LIBRARIES})

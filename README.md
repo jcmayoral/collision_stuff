@@ -14,3 +14,4 @@ This stack consists of:
 1. collision_recovery_nav: provides FaultRecovery plugin packages.
 1. collision_filters: it might be possible to filter false detected for some of the collision detectors.
 1. collisions_launch: contains launch files to run the move_base_fault_recovery stack.
+1. default_costmap_layers and default_recovery_behaviors: provide templates for MoveBase Layers and Recovery Behaviors.
