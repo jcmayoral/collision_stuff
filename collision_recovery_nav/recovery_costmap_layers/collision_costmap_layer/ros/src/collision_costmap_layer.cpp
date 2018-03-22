@@ -63,7 +63,7 @@ void CollisionCostmapLayer::updateBounds(double robot_x, double robot_y, double 
   //mark_x_ = robot_x + cos(robot_yaw);//puntos a cambiar
   //mark_y_ = robot_y + sin(robot_yaw);
   //ROS_INFO_STREAM("pose " << robot_x << robot_y << robot_yaw);
-  ROS_INFO("Update Bounds");
+  //ROS_INFO("Update Bounds");
   *min_x = std::min(*min_x, *std::min_element(mark_x_.begin(),mark_x_.end()));
   *min_y = std::min(*min_y, *std::min_element(mark_y_.begin(),mark_y_.end()));
   *max_x = std::max(*max_x, *std::max_element(mark_x_.begin(),mark_x_.end()));

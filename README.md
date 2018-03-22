@@ -8,7 +8,9 @@ This stack consists of:
 
 1. fault_core: custom interfaces for faults.
 1. fusion_msgs: custom messages for sensor_fusion approach.
-1. navigation_manager: consists in a modified version of the move_base(most of them setters and getter to private attributes). In addition the move_base_fault_tolerant packages inherits the modified version to mantain an strategy to minimize commits.
+1. navigation_manager: consists in a modified version of the move_base(most of them come from adding setters and getter function to private attributes). In addition the move_base_fault_tolerant packages inherits the modified version which enhancing the navigation to hold collisions detection and recovery.
 1. collision_detection_nav: provides FaultDetection plugins packages.
+1. collision_diagnosis_nav: provides default packages using for diagnosing, each package provides a service which can be tested anytime.
 1. collision_recovery_nav: provides FaultRecovery plugin packages.
-1. collisions_launch: contains launch files to run the move_base_fault_recovery
+1. collision_filters: it might be possible to filter false detected for some of the collision detectors.
+1. collisions_launch: contains launch files to run the move_base_fault_recovery stack.
