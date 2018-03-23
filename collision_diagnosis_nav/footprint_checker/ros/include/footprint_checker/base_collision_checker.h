@@ -117,7 +117,7 @@ class BaseCollisionChecker
         sensor_msgs::PointCloud2 point_cloud_;
 
         //footprint_extender::FootprintExtender
-        FootprintExtender footprint_extepnder_;
+        FootprintExtender footprint_extender_;
 
         double collision_threshold_;
         std::vector <geometry_msgs::Pose> collided_poses_;

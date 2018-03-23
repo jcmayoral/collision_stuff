@@ -428,8 +428,14 @@ namespace collision_detector_diagnoser
 
     //collision_output_msg_.header = time_of_collision_; //TODO
     fault_.type_ = FaultTopology::COLLISION;
+
     ROS_INFO("Isolating Platform Collision");
     isCollisionDetected = false;
+    //Say Ouch
+    std_msgs::String msg;
+    msg.data ="ouch";
+    speak_pub_.publish(msg);
+
     diagnoseFault();
 
   }

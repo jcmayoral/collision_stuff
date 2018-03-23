@@ -2,7 +2,7 @@
 
 BaseCollisionChecker::BaseCollisionChecker(ros::NodeHandle &nh):
         nh_(nh), is_point_cloud_received_(false), collision_threshold_(20.0),
-        is_footprint_received(false), footprint_extender(nh_)
+        is_footprint_received(false), footprint_extender_(nh_)
 {
     orientations_pub_ = nh_.advertise<geometry_msgs::PoseArray>("collisions_orientations", 1);
     //From Local_planner

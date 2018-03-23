@@ -6,6 +6,7 @@
 #include <fault_core/fault_recovery_behavior.h>
 #include <base_local_planner/costmap_model.h>
 #include <std_srvs/Empty.h>
+#include <std_msgs/String.h>
 #include <mcr_recovery_behaviors/ForceFieldMsg.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 

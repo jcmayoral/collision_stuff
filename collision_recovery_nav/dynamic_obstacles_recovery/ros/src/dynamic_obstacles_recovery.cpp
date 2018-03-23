@@ -15,7 +15,7 @@ namespace dynamic_obstacles_recovery
     fault_cause_ = FaultTopology::DYNAMIC_OBSTACLE;
     ros::NodeHandle n;
     clear_costmaps_client_ = n.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
-    recovery_srv_client_ = private_n.serviceClient<mcr_recovery_behaviors::ForceFieldMsg>("force_field_service");
+    recovery_srv_client_ = n.serviceClient<mcr_recovery_behaviors::ForceFieldMsg>("force_field_service");
     ROS_INFO("Constructor DynamicObstaclesCollisionRecovery");
     ros::spinOnce(); // the missing call
   }
@@ -39,9 +39,6 @@ namespace dynamic_obstacles_recovery
     ROS_INFO("Running Dynamic Recovery");
     //recover from collision force_field_service
     if(recovery_srv_client_.call(recovery_srv)){
-      std_msgs::String msg;
-      msg.data ="ouch";
-      speak_pub_.publish(msg);
       ROS_INFO("FORCE FIELD RECOVERY SUCCESS");
     }
     else{

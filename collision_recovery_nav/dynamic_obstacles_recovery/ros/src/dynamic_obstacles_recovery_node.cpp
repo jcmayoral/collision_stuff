@@ -1,4 +1,4 @@
-#include "dynamic_obstacles_recovery/static_obstacles_recovery.h"
+#include "dynamic_obstacles_recovery/dynamic_obstacles_recovery.h"
 #include <ros/ros.h>
 
 using namespace dynamic_obstacles_recovery;
