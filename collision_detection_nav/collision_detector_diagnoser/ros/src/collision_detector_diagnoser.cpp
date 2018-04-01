@@ -23,6 +23,7 @@ namespace collision_detector_diagnoser
                                                             queue_size_(10),
                                                             is_custom_filter_requested_(false),
                                                             debug_mode_(false),
+                                                            is_collision_published_(false),
                                                             mean_collision_orientation_()
   {
     fault_.type_ =  FaultTopology::UNKNOWN_TYPE; //Default Value to Type
@@ -40,6 +41,7 @@ namespace collision_detector_diagnoser
                                                                              queue_size_(10),
                                                                              is_custom_filter_requested_(false),
                                                                              debug_mode_(false),
+                                                                             is_collision_published_(false),
                                                                              mean_collision_orientation_()
   {
     //Used In teh Node
@@ -144,6 +146,7 @@ namespace collision_detector_diagnoser
     while(is_custom_filter_requested_){//thread end just when the filter is not more required
        CustomMessageFilter::resetCollisionFlags(); //resetFlags
        CustomMessageFilter::clearCustomCollisionObserversIDS(); //clearSensorIds
+       is_collision_published_ = false;
        ros::Duration(double(CustomMessageFilter::getTimeOut())/1000).sleep(); //Sleep for Timeout(milliseconds)/1000 seconds
     }
   }
@@ -410,7 +413,7 @@ namespace collision_detector_diagnoser
       status_output_msg_.header.stamp = ros::Time::now();
       status_output_msg_.header.frame_id = "base_link";
 
-      if (isCollisionDetected){
+      if (isCollisionDetected && !is_collision_published_){
         if (is_custom_filter_requested_){
           status_output_msg_.observers_ids = getCustomCollisionObservers();
         }
@@ -418,6 +421,10 @@ namespace collision_detector_diagnoser
           status_output_msg_.observers_ids = fusion_approach_->getCollisionObservers();
         }
         collision_pub_.publish(status_output_msg_); //TODO
+
+        if (is_custom_filter_requested_){
+            is_collision_published_ = true;
+        }
       }
     }
 

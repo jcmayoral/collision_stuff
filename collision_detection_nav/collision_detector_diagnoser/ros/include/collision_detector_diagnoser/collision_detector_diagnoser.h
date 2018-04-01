@@ -251,6 +251,9 @@ namespace collision_detector_diagnoser
       // Stores mean collision orientation from observers
       tf::Quaternion mean_collision_orientation_;
 
+      // Publish just one collision_messages
+      bool is_collision_published_;
+
   };
 
 }  // namespace collision_detector_diagnoser
