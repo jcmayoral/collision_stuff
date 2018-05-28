@@ -2,7 +2,8 @@
 
 BaseCollisionChecker::BaseCollisionChecker(ros::NodeHandle &nh):
         nh_(nh), is_point_cloud_received_(false), collision_threshold_(20.0),
-        is_footprint_received(false), footprint_extender_(nh_)
+        is_footprint_received(false), footprint_extender_(nh_),distance_to_obstacle_(0.06),
+        static_collision_threshold_(20)
 {
     orientations_pub_ = nh_.advertise<geometry_msgs::PoseArray>("collisions_orientations", 1);
     //From Local_planner
@@ -13,8 +14,22 @@ BaseCollisionChecker::BaseCollisionChecker(ros::NodeHandle &nh):
     point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("overlap_costmap",2);
     //Publisher of collision Contact Points...Subscriber is on the Layer
     collision_point_pub_ = nh_.advertise<geometry_msgs::PointStamped>("collision_contact_point",1);
+
+    nh.param("distance_to_obstacle_", distance_to_obstacle_,0.06);
     nh.param("collision_checker_threshold", collision_threshold_,30.0);
+    nh.param("static_collision_threshold", static_collision_threshold_,25);
+    ROS_INFO_STREAM("Distance to obstacle set to " << distance_to_obstacle_);
+    ROS_INFO_STREAM("Static Collision Thrshold " << static_collision_threshold_);
     ROS_INFO("State: INIT");
+
+    //define the servicee
+    service = nh.advertiseService("/collision_checker",
+        &BaseCollisionChecker::runService, this);
+
+    ROS_INFO("Ready to start...");
+
+    ros::spin();
+
 }
 
 BaseCollisionChecker::~BaseCollisionChecker()
@@ -77,23 +92,23 @@ bool BaseCollisionChecker::runService(footprint_checker::CollisionCheckerMsg::Re
 
             //Front
             if (it->first > 0){
-                msg.point.x = it->first + 0.06;
+                msg.point.x = it->first + distance_to_obstacle_;
             }
             else{//back
-                msg.point.x = it->first - 0.06;
+                msg.point.x = it->first - distance_to_obstacle_;
             }
 
             if (it->second > 0){//right
-                msg.point.y = it->second + 0.06;
+                msg.point.y = it->second + distance_to_obstacle_;
             }
             else{//left
-                msg.point.y = it->second - 0.06;
+                msg.point.y = it->second - distance_to_obstacle_;
             }
 
             ROS_WARN_STREAM("Cost of Collision "<< *cost_it);
             //Add poitn to collision
             collision_point_pub_.publish(msg);
-            if (*cost_it < 25){
+            if (*cost_it < static_collision_threshold_){
               //If cost of the selected footprint point is less than a threshold then the collision happens again an obstacle on the map
               resp.is_static_collision = true;
             }

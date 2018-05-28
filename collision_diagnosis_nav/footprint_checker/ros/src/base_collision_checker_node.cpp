@@ -8,12 +8,5 @@ int main(int argc, char *argv[])
     //Init service
     BaseCollisionChecker base_collision_checker(nh);
 
-    //define the servicee
-    ros::ServiceServer service = nh.advertiseService("/collision_checker",
-        &BaseCollisionChecker::runService, &base_collision_checker);
-
-    ROS_INFO("Ready to start...");
-
-    ros::spin();
     return 0;
 }

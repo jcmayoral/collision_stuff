@@ -70,6 +70,8 @@ class KineticMonitor
 
         bool request_received_;
         int max_number_elements_;
+
+        ros::ServiceServer service;
 };
 
 #endif  // KINETIC_MONITOR_H_

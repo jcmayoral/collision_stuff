@@ -126,6 +126,11 @@ class BaseCollisionChecker
 
         geometry_msgs::PoseArray collided_poses_array_;
 
+        ros::ServiceServer service;
+
+        //params
+        double distance_to_obstacle_;
+        int static_collision_threshold_;
 };
 
 #endif  // BASE_COLLISION_CHECKER_H_
