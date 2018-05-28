@@ -12,6 +12,6 @@
     <include file="$(find mcr_navigation_tools)/ros/launch/navigation_goals_as_marker.launch" />
     
     <!-- particle filter localization -->
-    <include file="$(find mdr_2dnav)/ros/launch/amcl.launch" />
+    <include file="$(find collisions_launch)/ros/launch/amcl_stage.launch" />
 
 </launch>
