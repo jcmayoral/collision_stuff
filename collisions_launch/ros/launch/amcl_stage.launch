@@ -3,7 +3,7 @@
 
     <!--- start AMCL -->
     <node pkg="amcl" type="amcl" name="amcl">
-        <remap from="scan" to="base_scan"/>
+        <remap from="scan" to="scan_unified"/>
 
         <!--- Odometry model parameters  -->
         <param name="odom_model_type" value="omni"/>                    <!-- default : omni -->
