@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
-  <name>collisions_stuff</name>
-  <version>1.0.0</version>
+  <name>collision_stuff</name>
+  <version>1.0.1</version>
   <description>A Collision Detector and Recovery node compatible with b-it-bots repositories</description>
 
   <maintainer email="jocamaba1989@gmail.com">Jose Mayoral</maintainer>
